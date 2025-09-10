@@ -277,7 +277,7 @@ function create3DText() {
     
     // Load Outfit font (converted to Three.js typeface format)
     fontLoader.load(
-        './fonts/Outfit_Regular.json',
+        'https://threejs.org/examples/fonts/optimer_regular.typeface.json', // Using Optimer as fallback - will update to Outfit
         (font) => {
             // Create text geometry
             const textGeometry = new TextGeometry('cerebral', {

@@ -275,9 +275,9 @@ function create3DText() {
     
     const fontLoader = new FontLoader();
     
-    // Load Outfit font (converted to Three.js typeface format)
+    // Load a font (using Three.js built-in helvetiker font)
     fontLoader.load(
-        './fonts/Outfit_Regular.json',
+        'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
         (font) => {
             // Create text geometry
             const textGeometry = new TextGeometry('cerebral', {

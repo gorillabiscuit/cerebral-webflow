@@ -275,15 +275,15 @@ function create3DText() {
     
     const fontLoader = new FontLoader();
     
-    // Load Outfit font (converted to Three.js typeface format)
+    // Load a font (using Three.js built-in helvetiker font)
     fontLoader.load(
-        './fonts/Outfit_Regular.json',
+        'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
         (font) => {
             // Create text geometry
             const textGeometry = new TextGeometry('cerebral', {
                 font: font,
-                size: 5, // Text size
-                depth: 0.1, // Text depth/extrusion
+                size: 0.05, // Text size
+                height: 0, // Text depth/extrusion
                 curveSegments: 12,
                 bevelEnabled: false,
                 // bevelThickness: 0.03,
@@ -307,10 +307,9 @@ function create3DText() {
             
             const centerOffsetX = -0.5 * (bbox.max.x - bbox.min.x);
             const centerOffsetY = -0.5 * (bbox.max.y - bbox.min.y);
-            // IGNORE the Z offset - the geometry has incorrect depth despite height: 0
-            const centerOffsetZ = 0; // Force Z-centering to 0
+            const centerOffsetZ = -0.5 * (bbox.max.z - bbox.min.z);
             
-            console.log('Center Offsets - X:', centerOffsetX, 'Y:', centerOffsetY, 'Z (FORCED):', centerOffsetZ);
+            console.log('Center Offsets - X:', centerOffsetX, 'Y:', centerOffsetY, 'Z:', centerOffsetZ);
             
             // Create RED material for text (easy to see)
             const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
@@ -319,8 +318,7 @@ function create3DText() {
             const textMesh = new THREE.Mesh(textGeometry, textMaterial);
             
             // Position text between plane (-5.0 z) and cube (0 z) 
-            // Use centerOffsetZ to counteract the geometry's incorrect depth
-            textMesh.position.set(centerOffsetX, centerOffsetY, -2.5 + centerOffsetZ);
+            textMesh.position.set(centerOffsetX, centerOffsetY, -2.5);
             
             console.log('Final text position:', textMesh.position);
             console.log('Text mesh scale:', textMesh.scale);

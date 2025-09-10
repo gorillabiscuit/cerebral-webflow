@@ -2,9 +2,6 @@
 // Three.js scene with glass shader and scroll/mouse interactions
 
 import * as THREE from 'three';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 console.log('Three.js Glass Shader Scene initialized');
 
@@ -18,7 +15,6 @@ let mainRenderTarget, backRenderTarget;
 let uniforms;
 let mouseInfluence = { x: 0, y: 0 };
 let lastMousePos = { x: 0, y: 0 };
-let controls;
 
 // Shader code
 const vertexShader = `
@@ -237,19 +233,8 @@ function init() {
     // Create background geometry for refraction
     createBackgroundGeometry();
     
-    // Create 3D text
-    create3DText();
-    
     // Create glass cube
     createGlassCube();
-    
-    // Add OrbitControls
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = true;
-    controls.enablePan = true;
-    controls.enableRotate = true;
     
     // Add event listeners
     addEventListeners();
@@ -267,76 +252,6 @@ function createBackgroundGeometry() {
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.position.set(-5.1, 0, -5.0); // Keep same position
     scene.add(plane);
-}
-
-// Create 3D text
-function create3DText() {
-    console.log('Creating 3D text...');
-    
-    const fontLoader = new FontLoader();
-    
-    // Load Outfit font (converted to Three.js typeface format)
-    fontLoader.load(
-        './fonts/Outfit_Regular.json',
-        (font) => {
-            // Create text geometry
-            const textGeometry = new TextGeometry('cerebral', {
-                font: font,
-                size: 5, // Text size
-                depth: 0.1, // Text depth/extrusion
-                curveSegments: 12,
-                bevelEnabled: false,
-                // bevelThickness: 0.03,
-                // bevelSize: 0.02,
-                // bevelOffset: 0,
-                // bevelSegments: 5
-            });
-            
-            // Center the text geometry
-            textGeometry.computeBoundingBox();
-            const bbox = textGeometry.boundingBox;
-            
-            // Log detailed bounding box information
-            console.log('=== TEXT GEOMETRY DEBUG ===');
-            console.log('Bounding Box:', bbox);
-            console.log('Width (X):', bbox.max.x - bbox.min.x);
-            console.log('Height (Y):', bbox.max.y - bbox.min.y);
-            console.log('Depth (Z):', bbox.max.z - bbox.min.z);
-            console.log('Min XYZ:', bbox.min);
-            console.log('Max XYZ:', bbox.max);
-            
-            const centerOffsetX = -0.5 * (bbox.max.x - bbox.min.x);
-            const centerOffsetY = -0.5 * (bbox.max.y - bbox.min.y);
-            // IGNORE the Z offset - the geometry has incorrect depth despite height: 0
-            const centerOffsetZ = 0; // Force Z-centering to 0
-            
-            console.log('Center Offsets - X:', centerOffsetX, 'Y:', centerOffsetY, 'Z (FORCED):', centerOffsetZ);
-            
-            // Create RED material for text (easy to see)
-            const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            
-            // Create text mesh
-            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-            
-            // Position text between plane (-5.0 z) and cube (0 z) 
-            // Use centerOffsetZ to counteract the geometry's incorrect depth
-            textMesh.position.set(centerOffsetX, centerOffsetY, -2.5 + centerOffsetZ);
-            
-            console.log('Final text position:', textMesh.position);
-            console.log('Text mesh scale:', textMesh.scale);
-            
-            // Add to scene
-            scene.add(textMesh);
-            
-            console.log('3D text "cerebral" added to scene');
-        },
-        (progress) => {
-            console.log('Font loading progress:', (progress.loaded / progress.total * 100) + '%');
-        },
-        (error) => {
-            console.error('Error loading font:', error);
-        }
-    );
 }
 
 // Create glass cube
@@ -437,11 +352,6 @@ function onWindowResize() {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-    
-    // Update controls
-    if (controls) {
-        controls.update();
-    }
     
     if (wrapper && isModelReady) {
         const time = Date.now() * 0.001; // Convert to seconds

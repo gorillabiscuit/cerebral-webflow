@@ -2,13 +2,224 @@
 // Three.js scene with glass shader and scroll/mouse interactions
 
 import * as THREE from 'three';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 console.log('Three.js Glass Shader Scene initialized');
 
+// Initialize controls
+function initializeControls() {
+    // Accordion functionality
+    initializeAccordion();
+    
+    // Light controls
+    document.getElementById('lightX').addEventListener('input', updateLight);
+    document.getElementById('lightY').addEventListener('input', updateLight);
+    document.getElementById('lightZ').addEventListener('input', updateLight);
+    
+    // Material controls
+    document.getElementById('diffuseness').addEventListener('input', updateMaterial);
+    document.getElementById('shininess').addEventListener('input', updateMaterial);
+    document.getElementById('fresnelPower').addEventListener('input', updateMaterial);
+    
+    // IOR controls
+    document.getElementById('iorR').addEventListener('input', updateIOR);
+    document.getElementById('iorY').addEventListener('input', updateIOR);
+    document.getElementById('iorG').addEventListener('input', updateIOR);
+    document.getElementById('iorC').addEventListener('input', updateIOR);
+    document.getElementById('iorB').addEventListener('input', updateIOR);
+    document.getElementById('iorP').addEventListener('input', updateIOR);
+    
+    // Effect controls
+    document.getElementById('saturation').addEventListener('input', updateEffects);
+    document.getElementById('chromaticAberration').addEventListener('input', updateEffects);
+    document.getElementById('refraction').addEventListener('input', updateEffects);
+    
+    // Plane controls
+    document.getElementById('planeX').addEventListener('input', updatePlane);
+    document.getElementById('planeY').addEventListener('input', updatePlane);
+    document.getElementById('planeZ').addEventListener('input', updatePlane);
+    document.getElementById('planeScale').addEventListener('input', updatePlane);
+    
+    // Camera controls
+    document.getElementById('cameraX').addEventListener('input', updateCamera);
+    document.getElementById('cameraY').addEventListener('input', updateCamera);
+    document.getElementById('cameraZ').addEventListener('input', updateCamera);
+    document.getElementById('cameraFOV').addEventListener('input', updateCamera);
+    
+    // Sync UI with actual camera position
+    if (camera) {
+        // Set slider values to match camera position
+        document.getElementById('cameraX').value = camera.position.x;
+        document.getElementById('cameraY').value = camera.position.y;
+        document.getElementById('cameraZ').value = camera.position.z;
+        document.getElementById('cameraFOV').value = camera.fov; // Direct FOV value
+        
+        // Update display values
+        updateCamera();
+    }
+}
 
+// Initialize accordion functionality
+function initializeAccordion() {
+    const headers = document.querySelectorAll('.accordion-header');
+    
+    headers.forEach(header => {
+        header.addEventListener('click', toggleAccordionSection);
+    });
+}
+
+// Toggle accordion section
+function toggleAccordionSection(event) {
+    const header = event.currentTarget;
+    const content = header.nextElementSibling;
+    const isExpanded = header.classList.contains('expanded');
+    
+    if (isExpanded) {
+        // Collapse
+        header.classList.remove('expanded');
+        content.classList.remove('expanded');
+    } else {
+        // Expand
+        header.classList.add('expanded');
+        content.classList.add('expanded');
+    }
+}
+
+function updateLight() {
+    const x = parseFloat(document.getElementById('lightX').value);
+    const y = parseFloat(document.getElementById('lightY').value);
+    const z = parseFloat(document.getElementById('lightZ').value);
+    
+    document.getElementById('lightXValue').textContent = x.toFixed(1);
+    document.getElementById('lightYValue').textContent = y.toFixed(1);
+    document.getElementById('lightZValue').textContent = z.toFixed(1);
+    
+    if (uniforms && uniforms.uLight) {
+        uniforms.uLight.value.set(x, y, z);
+    }
+}
+
+function updateMaterial() {
+    const diffuseness = parseFloat(document.getElementById('diffuseness').value);
+    const shininess = parseFloat(document.getElementById('shininess').value);
+    const fresnelPower = parseFloat(document.getElementById('fresnelPower').value);
+    
+    document.getElementById('diffusenessValue').textContent = diffuseness.toFixed(2);
+    document.getElementById('shininessValue').textContent = shininess.toFixed(1);
+    document.getElementById('fresnelPowerValue').textContent = fresnelPower.toFixed(1);
+    
+    if (uniforms) {
+        if (uniforms.uDiffuseness) uniforms.uDiffuseness.value = diffuseness;
+        if (uniforms.uShininess) uniforms.uShininess.value = shininess;
+        if (uniforms.uFresnelPower) uniforms.uFresnelPower.value = fresnelPower;
+    }
+}
+
+function updateIOR() {
+    const iorR = parseFloat(document.getElementById('iorR').value);
+    const iorY = parseFloat(document.getElementById('iorY').value);
+    const iorG = parseFloat(document.getElementById('iorG').value);
+    const iorC = parseFloat(document.getElementById('iorC').value);
+    const iorB = parseFloat(document.getElementById('iorB').value);
+    const iorP = parseFloat(document.getElementById('iorP').value);
+    
+    document.getElementById('iorRValue').textContent = iorR.toFixed(3);
+    document.getElementById('iorYValue').textContent = iorY.toFixed(3);
+    document.getElementById('iorGValue').textContent = iorG.toFixed(3);
+    document.getElementById('iorCValue').textContent = iorC.toFixed(3);
+    document.getElementById('iorBValue').textContent = iorB.toFixed(3);
+    document.getElementById('iorPValue').textContent = iorP.toFixed(3);
+    
+    if (uniforms) {
+        if (uniforms.uIorR) uniforms.uIorR.value = iorR;
+        if (uniforms.uIorY) uniforms.uIorY.value = iorY;
+        if (uniforms.uIorG) uniforms.uIorG.value = iorG;
+        if (uniforms.uIorC) uniforms.uIorC.value = iorC;
+        if (uniforms.uIorB) uniforms.uIorB.value = iorB;
+        if (uniforms.uIorP) uniforms.uIorP.value = iorP;
+    }
+}
+
+function updateEffects() {
+    const saturation = parseFloat(document.getElementById('saturation').value);
+    const chromaticAberration = parseFloat(document.getElementById('chromaticAberration').value);
+    const refraction = parseFloat(document.getElementById('refraction').value);
+    
+    document.getElementById('saturationValue').textContent = saturation.toFixed(2);
+    document.getElementById('chromaticAberrationValue').textContent = chromaticAberration.toFixed(2);
+    document.getElementById('refractionValue').textContent = refraction.toFixed(2);
+    
+    if (uniforms) {
+        if (uniforms.uSaturation) uniforms.uSaturation.value = saturation;
+        if (uniforms.uChromaticAberration) uniforms.uChromaticAberration.value = chromaticAberration;
+        if (uniforms.uRefractPower) uniforms.uRefractPower.value = refraction;
+    }
+}
+
+function updatePlane() {
+    const x = parseFloat(document.getElementById('planeX').value);
+    const y = parseFloat(document.getElementById('planeY').value);
+    const z = parseFloat(document.getElementById('planeZ').value);
+    const scale = parseFloat(document.getElementById('planeScale').value);
+    
+    document.getElementById('planeXValue').textContent = x.toFixed(1);
+    document.getElementById('planeYValue').textContent = y.toFixed(1);
+    document.getElementById('planeZValue').textContent = z.toFixed(1);
+    document.getElementById('planeScaleValue').textContent = scale.toFixed(1);
+    
+    // Update plane position and scale
+    if (scene) {
+        scene.traverse((object) => {
+            if (object.isMesh && object.material && object.material.map) {
+                // This is our plane with texture
+                object.position.set(x, y, z);
+                object.scale.setScalar(scale);
+                
+                // Update plane geometry dimensions
+                const width = 20 * scale;
+                const height = width * (591 / 1325);
+                object.geometry.dispose();
+                object.geometry = new THREE.PlaneGeometry(width, height);
+            }
+        });
+    }
+}
+
+function updateCamera() {
+    const x = parseFloat(document.getElementById('cameraX').value);
+    const y = parseFloat(document.getElementById('cameraY').value);
+    const z = parseFloat(document.getElementById('cameraZ').value);
+    const fovSlider = parseFloat(document.getElementById('cameraFOV').value);
+    
+    document.getElementById('cameraXValue').textContent = x.toFixed(1);
+    document.getElementById('cameraYValue').textContent = y.toFixed(1);
+    document.getElementById('cameraZValue').textContent = z.toFixed(1);
+    document.getElementById('cameraFOVValue').textContent = fovSlider.toFixed(0);
+    
+    // Update camera position and FOV
+    if (camera) {
+        // Update position
+        camera.position.set(x, y, z);
+        
+        // FOV logic: slider value directly sets the FOV
+        camera.fov = fovSlider;
+        
+        // Force projection matrix update
+        camera.updateProjectionMatrix();
+        
+        console.log('Camera updated:', {
+            position: camera.position,
+            fov: camera.fov,
+            sliderValue: fovSlider,
+            aspect: camera.aspect
+        });
+    }
+}
+
+// Initialize controls when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for Three.js to initialize
+    setTimeout(initializeControls, 1000);
+});
 
 // Scene variables
 let scene, camera, renderer, canvas;
@@ -18,7 +229,6 @@ let mainRenderTarget, backRenderTarget;
 let uniforms;
 let mouseInfluence = { x: 0, y: 0 };
 let lastMousePos = { x: 0, y: 0 };
-let controls;
 
 // Shader code
 const vertexShader = `
@@ -237,19 +447,8 @@ function init() {
     // Create background geometry for refraction
     createBackgroundGeometry();
     
-    // Create 3D text
-    create3DText();
-    
     // Create glass cube
     createGlassCube();
-    
-    // Add OrbitControls
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = true;
-    controls.enablePan = true;
-    controls.enableRotate = true;
     
     // Add event listeners
     addEventListeners();
@@ -257,86 +456,31 @@ function init() {
 
 // Create background geometry for refraction effects
 function createBackgroundGeometry() {
-    // Create simple white plane for refraction background
-    const planeGeometry = new THREE.PlaneGeometry(20, 15); // Simple rectangular plane
+    const backgroundGroup = new THREE.Group();
+    backgroundGroup.visible = true; // Make visible to see all objects
+    
+    // Background group is now empty - removed the four white icosahedrons
+    scene.add(backgroundGroup);
+    
+    // Add plane with PNG material - separate from background group so it's visible
+    const textureLoader = new THREE.TextureLoader();
+    const headerTexture = textureLoader.load('/images/header.png');
+    
+    // Create plane geometry - exact GitHub dimensions
+    const planeScale = 1; // GitHub default
+    const width = 20 * planeScale; // 20 units
+    const height = width * (591 / 1325); // 8.92 units based on 1325:591 ratio
+    const planeGeometry = new THREE.PlaneGeometry(width, height);
     const planeMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xffffff, // Pure white
+        map: headerTexture,
+        transparent: true,
+        opacity: 0.8, // GitHub opacity
         side: THREE.DoubleSide
     });
     
     const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    plane.position.set(-5.1, 0, -5.0); // Keep same position
-    scene.add(plane);
-}
-
-// Create 3D text
-function create3DText() {
-    console.log('Creating 3D text...');
-    
-    const fontLoader = new FontLoader();
-    
-    // Load Outfit font (converted to Three.js typeface format)
-    fontLoader.load(
-        './fonts/Outfit_Regular.json',
-        (font) => {
-            // Create text geometry
-            const textGeometry = new TextGeometry('cerebral', {
-                font: font,
-                size: 5, // Text size
-                depth: 0.1, // Text depth/extrusion
-                curveSegments: 12,
-                bevelEnabled: false,
-                // bevelThickness: 0.03,
-                // bevelSize: 0.02,
-                // bevelOffset: 0,
-                // bevelSegments: 5
-            });
-            
-            // Center the text geometry
-            textGeometry.computeBoundingBox();
-            const bbox = textGeometry.boundingBox;
-            
-            // Log detailed bounding box information
-            console.log('=== TEXT GEOMETRY DEBUG ===');
-            console.log('Bounding Box:', bbox);
-            console.log('Width (X):', bbox.max.x - bbox.min.x);
-            console.log('Height (Y):', bbox.max.y - bbox.min.y);
-            console.log('Depth (Z):', bbox.max.z - bbox.min.z);
-            console.log('Min XYZ:', bbox.min);
-            console.log('Max XYZ:', bbox.max);
-            
-            const centerOffsetX = -0.5 * (bbox.max.x - bbox.min.x);
-            const centerOffsetY = -0.5 * (bbox.max.y - bbox.min.y);
-            // IGNORE the Z offset - the geometry has incorrect depth despite height: 0
-            const centerOffsetZ = 0; // Force Z-centering to 0
-            
-            console.log('Center Offsets - X:', centerOffsetX, 'Y:', centerOffsetY, 'Z (FORCED):', centerOffsetZ);
-            
-            // Create RED material for text (easy to see)
-            const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            
-            // Create text mesh
-            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-            
-            // Position text between plane (-5.0 z) and cube (0 z) 
-            // Use centerOffsetZ to counteract the geometry's incorrect depth
-            textMesh.position.set(centerOffsetX, centerOffsetY, -2.5 + centerOffsetZ);
-            
-            console.log('Final text position:', textMesh.position);
-            console.log('Text mesh scale:', textMesh.scale);
-            
-            // Add to scene
-            scene.add(textMesh);
-            
-            console.log('3D text "cerebral" added to scene');
-        },
-        (progress) => {
-            console.log('Font loading progress:', (progress.loaded / progress.total * 100) + '%');
-        },
-        (error) => {
-            console.error('Error loading font:', error);
-        }
-    );
+    plane.position.set(-5.1, 0, -5.0); // Match UI defaults
+    scene.add(plane); // Add directly to scene, not to background group
 }
 
 // Create glass cube
@@ -437,11 +581,6 @@ function onWindowResize() {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-    
-    // Update controls
-    if (controls) {
-        controls.update();
-    }
     
     if (wrapper && isModelReady) {
         const time = Date.now() * 0.001; // Convert to seconds
