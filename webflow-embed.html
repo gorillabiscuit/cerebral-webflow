@@ -627,10 +627,9 @@
             backgroundGroup.visible = true;
             scene.add(backgroundGroup);
             
-            // Add plane with texture - NOTE: You'll need to host this image externally for Webflow
+            // Add plane with texture - Using GitHub raw URL
             const textureLoader = new THREE.TextureLoader();
-            // Replace with your hosted image URL
-            const headerTexture = textureLoader.load('https://your-domain.com/images/header.png');
+            const headerTexture = textureLoader.load('https://raw.githubusercontent.com/gorillabiscuit/cerebral-webflow/master/images/header.png');
             
             const planeScale = 1;
             const width = 20 * planeScale;
@@ -654,8 +653,8 @@
             
             const loader = new GLTFLoader();
             
-            // NOTE: You'll need to host this model externally for Webflow
-            loader.load('https://your-domain.com/models/nftfi_logo.glb', (gltf) => {
+            // Using GitHub raw URL for the GLTF model
+            loader.load('https://raw.githubusercontent.com/gorillabiscuit/cerebral-webflow/master/models/nftfi_logo.glb', (gltf) => {
                 console.log('Model loaded:', gltf);
                 
                 const box = new THREE.Box3().setFromObject(gltf.scene);
