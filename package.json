@@ -1,0 +1,23 @@
+{
+  "name": "nftfi-marketing-site-singlescroll",
+  "version": "1.0.0",
+  "description": "A single page scroller using Three.js elements and scroll capture libraries, managed with Taskmaster.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@floating-ui/dom": "^1.7.3",
+    "gsap": "^3.13.0",
+    "task-master-ai": "^0.22.0",
+    "three": "^0.178.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.6"
+  }
+}

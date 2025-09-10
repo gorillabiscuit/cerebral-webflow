@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFTfi Marketing Site - Single Scroll</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Three.js Container -->
+    <div id="three-container">
+        <canvas id="three-canvas"></canvas>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="custom-navbar">
+        <div class="nav-container">
+            <div class="nav-item">
+                <a href="#" class="nav-link">Borrow</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">Lend</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">Refinance</a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">Blog</a>
+            </div>
+            <div class="nav-item dropdown-container">
+                <button class="nav-link dropdown-trigger">
+                    Resources
+                    <svg class="chevron" width="20" height="20" viewBox="0 0 20 20">
+                        <path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item">Documentation</a>
+                    <a href="#" class="dropdown-item">API Reference</a>
+                    <a href="#" class="dropdown-item">Tutorials</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">Support</a>
+                </div>
+            </div>
+            <div class="nav-item dropdown-container">
+                <button class="nav-link dropdown-trigger">
+                    Socials
+                    <svg class="chevron" width="20" height="20" viewBox="0 0 20 20">
+                        <path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item">Twitter</a>
+                    <a href="#" class="dropdown-item">Discord</a>
+                    <a href="#" class="dropdown-item">Telegram</a>
+                    <a href="#" class="dropdown-item">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Logo -->
+    <div id="logo">
+        <svg width="102" height="26" viewBox="0 0 102 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M98.1602 1.63574H101.796V5.27174H98.1602V1.63574ZM98.3762 8.25974H101.616V24.9997H98.3762V8.25974Z" fill="#F2F2F2"/>
+            <path d="M85.0133 10.96H81.9893V8.25998H85.0133V6.89198C85.0133 5.76398 85.1693 4.79198 85.4813 3.97598C85.8173 3.13598 86.2493 2.45198 86.7773 1.92398C87.3293 1.39598 87.9533 1.01198 88.6493 0.771976C89.3453 0.507976 90.0773 0.375977 90.8453 0.375977C91.7333 0.375977 92.5973 0.519977 93.4373 0.807976C94.3013 1.07198 95.0933 1.53998 95.8133 2.21198L94.1933 4.29998C93.3053 3.55598 92.3573 3.18398 91.3493 3.18398C90.4133 3.18398 89.6573 3.48398 89.0813 4.08398C88.5293 4.68398 88.2533 5.71598 88.2533 7.17998V8.25998H93.0413V10.96H88.2533V25H85.0133V10.96Z" fill="#F2F2F2"/>
+            <path d="M70.297 10.9601H67.2729V8.26009H70.297V2.78809H73.5369V8.26009H78.4329V10.9601H73.5369V19.2041C73.5369 20.5481 73.741 21.4721 74.149 21.9761C74.581 22.4801 75.181 22.7321 75.949 22.7321C76.573 22.7321 77.089 22.6361 77.497 22.4441C77.905 22.2521 78.313 21.9641 78.721 21.5801L80.1969 23.5601C79.5009 24.2321 78.7809 24.7121 78.0369 25.0001C77.3169 25.3121 76.453 25.4681 75.445 25.4681C73.669 25.4681 72.361 24.9881 71.521 24.0281C70.705 23.0681 70.297 21.5681 70.297 19.5281V10.9601Z" fill="#F2F2F2"/>
+            <path d="M57.1539 10.96H54.1299V8.25998H57.1539V6.89198C57.1539 5.76398 57.3099 4.79198 57.6219 3.97598C57.9579 3.13598 58.3899 2.45198 58.9179 1.92398C59.4699 1.39598 60.0939 1.01198 60.7899 0.771976C61.4859 0.507976 62.2179 0.375977 62.9859 0.375977C63.8739 0.375977 64.7379 0.519977 65.5779 0.807976C66.4419 1.07198 67.2339 1.53998 67.9539 2.21198L66.3339 4.29998C65.4459 3.55598 64.4979 3.18398 63.4899 3.18398C62.5539 3.18398 61.7979 3.48398 61.2219 4.08398C60.6699 4.68398 60.3939 5.71598 60.3939 7.17998V8.25998H65.1819V10.96H60.3939V25H57.1539V10.96Z" fill="#F2F2F2"/>
+            <path d="M35.2318 25.0003V9.98826C35.2318 9.77226 35.2318 9.55626 35.2318 9.34026C35.2318 9.10026 35.2198 8.74026 35.1958 8.26026H38.2918L38.3998 10.7803C38.6158 10.4923 38.8798 10.1803 39.1918 9.84426C39.5038 9.48426 39.8878 9.16026 40.3438 8.87226C40.7998 8.58426 41.3278 8.34426 41.9278 8.15226C42.5518 7.96026 43.2478 7.86426 44.0158 7.86426C46.1998 7.86426 47.8198 8.50026 48.8758 9.77226C49.9318 11.0443 50.4598 12.7723 50.4598 14.9563V25.0003H47.2198V15.2083C47.2198 13.6483 46.8838 12.5083 46.2118 11.7883C45.5398 11.0443 44.5918 10.6723 43.3678 10.6723C42.4318 10.6723 41.6518 10.8643 41.0278 11.2483C40.4038 11.6323 39.8998 12.1363 39.5158 12.7603C39.1558 13.3603 38.8918 14.0563 38.7238 14.8483C38.5558 15.6163 38.4718 16.4083 38.4718 17.2243V25.0003H35.2318Z" fill="#F2F2F2"/>
+            <path d="M24.9973 5.42806C25.0299 7.7346 23.248 9.64792 20.6296 10.1159C18.2831 10.5355 16.0345 11.1742 14.1013 12.6265C11.791 14.363 10.6336 16.7408 9.95839 19.4098C9.68286 20.4962 9.62938 21.631 8.97501 22.6286C7.76685 24.4671 5.73937 25.3618 3.70464 24.8639C1.61553 24.3528 0.0810928 22.5125 0.00314758 20.4241C-0.072985 18.3876 1.23758 16.5323 3.32579 15.8743C4.55207 15.4882 5.83182 15.2647 7.07351 14.9208C11.7194 13.6329 14.0822 10.4053 15.081 6.01394C15.3674 4.75422 15.5043 3.44789 16.4686 2.4081C17.8517 0.916153 19.8873 0.349634 21.8296 1.005C23.6713 1.62694 24.9719 3.44173 25 5.42894L24.9973 5.42806Z" fill="#F2F2F2"/>
+            <path d="M10.6036 5.18843C10.5329 8.06586 8.10801 10.3416 5.16587 10.2934C2.2935 10.2461 -0.099471 7.76019 0.00318476 4.92808C0.103847 2.15865 2.55563 -0.066926 5.43397 0.00153833C8.3193 0.0690384 10.6724 2.42961 10.6046 5.18843H10.6036Z" fill="#F2F2F2"/>
+        </svg>
+    </div>
+    
+    <!-- Content Container for ScrollSmoother -->
+    <div id="smooth-content">
+        <!-- Content Sections -->
+        <section class="section" data-section="1">
+            <div class="content">
+                <h1>Welcome to NFTfi</h1>
+                <p class="subtitle">Experience the future of NFT lending</p>
+                
+                <!-- UI Controls Panel -->
+                <div class="controls-panel">
+                    <h3>Shader Controls</h3>
+                    
+                    <!-- Light Controls -->
+                    <div class="accordion-section">
+                        <button class="accordion-header">
+                            <span>Light Direction</span>
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 12 12">
+                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="control-group">
+                                <div class="vector-controls">
+                                    <input type="range" id="lightX" min="-2" max="2" step="0.1" value="-1.0" class="control-slider">
+                                    <input type="range" id="lightY" min="-2" max="2" step="0.1" value="1.0" class="control-slider">
+                                    <input type="range" id="lightZ" min="-2" max="2" step="0.1" value="1.0" class="control-slider">
+                                    <span class="control-label">X: <span id="lightXValue">-1.0</span></span>
+                                    <span class="control-label">Y: <span id="lightYValue">1.0</span></span>
+                                    <span class="control-label">Z: <span id="lightZValue">1.0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Material Controls -->
+                    <div class="accordion-section">
+                        <button class="accordion-header">
+                            <span>Material Properties</span>
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 12 12">
+                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="control-group">
+                                <div class="control-row">
+                                    <label>Diffuseness: <span id="diffusenessValue">0.2</span></label>
+                                    <input type="range" id="diffuseness" min="0" max="1" step="0.01" value="0.2" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Shininess: <span id="shininessValue">25.0</span></label>
+                                    <input type="range" id="shininess" min="1" max="100" step="0.1" value="25.0" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Fresnel Power: <span id="fresnelPowerValue">9.0</span></label>
+                                    <input type="range" id="fresnelPower" min="0" max="20" step="0.1" value="9.0" class="control-slider">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- IOR Controls -->
+                    <div class="accordion-section">
+                        <button class="accordion-header">
+                            <span>Index of Refraction (IOR)</span>
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 12 12">
+                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="control-group">
+                                <div class="control-row">
+                                    <label>Red: <span id="iorRValue">1.15</span></label>
+                                    <input type="range" id="iorR" min="1.0" max="2.333" step="0.001" value="1.15" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Yellow: <span id="iorYValue">1.16</span></label>
+                                    <input type="range" id="iorY" min="1.0" max="2.333" step="0.001" value="1.16" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Green: <span id="iorGValue">1.18</span></label>
+                                    <input type="range" id="iorG" min="1.0" max="2.333" step="0.001" value="1.18" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Cyan: <span id="iorCValue">1.22</span></label>
+                                    <input type="range" id="iorC" min="1.0" max="2.333" step="0.001" value="1.22" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Blue: <span id="iorBValue">1.22</span></label>
+                                    <input type="range" id="iorB" min="1.0" max="2.333" step="0.001" value="1.22" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Purple: <span id="iorPValue">1.22</span></label>
+                                    <input type="range" id="iorP" min="1.0" max="2.333" step="0.001" value="1.22" class="control-slider">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Effect Controls -->
+                    <div class="accordion-section">
+                        <button class="accordion-header">
+                            <span>Effects</span>
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 12 12">
+                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="control-group">
+                                <div class="control-row">
+                                    <label>Saturation: <span id="saturationValue">1.01</span></label>
+                                    <input type="range" id="saturation" min="1" max="1.25" step="0.01" value="1.01" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Chromatic Aberration: <span id="chromaticAberrationValue">0.14</span></label>
+                                    <input type="range" id="chromaticAberration" min="0" max="1.5" step="0.01" value="0.14" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Refraction Power: <span id="refractionValue">0.35</span></label>
+                                    <input type="range" id="refraction" min="0" max="1" step="0.01" value="0.35" class="control-slider">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Plane Controls -->
+                    <div class="accordion-section">
+                        <button class="accordion-header">
+                            <span>Background Plane</span>
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 12 12">
+                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="control-group">
+                                <div class="control-row">
+                                    <label>X Position: <span id="planeXValue">-5.1</span></label>
+                                    <input type="range" id="planeX" min="-10" max="10" step="0.1" value="-5.1" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Y Position: <span id="planeYValue">0</span></label>
+                                    <input type="range" id="planeY" min="-10" max="10" step="0.1" value="0" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Z Position: <span id="planeZValue">-5.0</span></label>
+                                    <input type="range" id="planeZ" min="-20" max="5" step="0.1" value="-5.0" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Scale: <span id="planeScaleValue">1.0</span></label>
+                                    <input type="range" id="planeScale" min="0.1" max="3" step="0.1" value="1.0" class="control-slider">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Camera Controls -->
+                    <div class="accordion-section">
+                        <button class="accordion-header">
+                            <span>Camera</span>
+                            <svg class="chevron" width="12" height="12" viewBox="0 0 12 12">
+                                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="control-group">
+                                <div class="control-row">
+                                    <label>X Position: <span id="cameraXValue">0.0</span></label>
+                                    <input type="range" id="cameraX" min="-10" max="10" step="0.1" value="0.0" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Y Position: <span id="cameraYValue">0.0</span></label>
+                                    <input type="range" id="cameraY" min="-10" max="10" step="0.1" value="0.0" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Z Position: <span id="cameraZValue">33.6</span></label>
+                                    <input type="range" id="cameraZ" min="1" max="100" step="0.1" value="33.6" class="control-slider">
+                                </div>
+                                <div class="control-row">
+                                    <label>Field of View: <span id="cameraFOVValue">18</span></label>
+                                    <input type="range" id="cameraFOV" min="10" max="120" step="1" value="18" class="control-slider">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="features">
+                    <div class="feature">
+                        <h3>Lend</h3>
+                        <p>Borrow against your NFTs</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Earn</h3>
+                        <p>Generate yield from your assets</p>
+                    </div>
+                    <div class="feature">
+                        <h3>Trade</h3>
+                        <p>Access liquidity instantly</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" data-section="2">
+            <div class="content">
+                <h2>Innovative Platform</h2>
+                <p class="subtitle">Discover our cutting-edge technology</p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="number">$500M+</span>
+                        <span class="label">Total Volume</span>
+                    </div>
+                    <div class="stat">
+                        <span class="number">50K+</span>
+                        <span class="label">Users</span>
+                    </div>
+                    <div class="stat">
+                        <span class="number">99.9%</span>
+                        <span class="label">Uptime</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" data-section="3">
+            <div class="content">
+                <h2>Join the Revolution</h2>
+                <p class="subtitle">Be part of the NFT lending ecosystem</p>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary">Get Started</button>
+                    <button class="btn btn-secondary">Learn More</button>
+                </div>
+                <div class="social-proof">
+                    <p>"NFTfi has revolutionized how I think about NFT liquidity"</p>
+                    <span class="author">- Crypto Investor</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" data-section="4">
+            <div class="content">
+                <h2>Get Started Today</h2>
+                <p class="subtitle">Ready to explore NFTfi?</p>
+                <div class="final-cta">
+                    <button class="btn btn-large">Connect Wallet</button>
+                    <p class="disclaimer">No registration required • Instant access</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Main Application Script -->
+    <script type="module" src="main.js"></script>
+</body>
+</html> 

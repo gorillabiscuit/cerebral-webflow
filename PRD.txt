@@ -1,0 +1,104 @@
+Product Requirements Document (PRD): Scrolling One-Page Marketing Site with Three.js and ScrollTrigger Animation
+
+1. Overview
+
+This PRD outlines the specifications for building a prototype one-page marketing site that uses scroll and mouse interaction to drive simple yet powerful 3D animations. The purpose of the prototype is to serve as a reference and technical guide for handoff to a development team.
+
+2. Goals
+	•	Create a smooth-scrolling one-pager with pinned 3D content.
+	•	Use scroll and mouse interactions to animate a simple 3D object.
+	•	Deliver a performant, well-documented prototype using Three.js and GSAP ScrollTrigger.
+	•	Demonstrate key scroll + mouse interactions that can be used as the basis for production.
+
+3. Tech Stack
+	•	Three.js for 3D scene creation.
+	•	GSAP (GreenSock Animation Platform) with ScrollTrigger plugin for scroll-driven animation.
+	•	GSAP ScrollSmoother for smooth/inertial scroll behavior (optional but recommended).
+	•	HTML/CSS/JavaScript as base technologies (no framework).
+	•	Optional: GLTFLoader for loading .glb or .gltf models.
+
+4. Functional Requirements
+
+4.1 Scrolling Interaction
+	•	The page consists of multiple <section> elements, each taking 100vh.
+	•	The Three.js canvas is fixed fullscreen and persists across scroll.
+	•	ScrollTrigger is used to tie scroll position to 3D object transformations.
+	•	One or more ScrollTrigger timelines will be used to:
+	•	Move object into view on initial scroll.
+	•	Rotate the object (e.g. 90 degrees on Y-axis).
+	•	Transition between animations across scroll sections.
+	•	Optional: Integrate GSAP ScrollSmoother to provide inertia-based smooth scrolling for enhanced UX. If not used, native scroll behavior should be maintained and compatible with ScrollTrigger.
+
+4.2 Mouse Interaction
+	•	Cursor movement is captured and normalized (-0.5 to 0.5).
+	•	Parallax effect applied via camera group or object rotation:
+	•	Example: Camera or object tilts slightly based on cursor.
+	•	Inertia added via linear interpolation (lerp) for smooth follow.
+
+4.3 Rendering Behavior
+	•	Canvas is rendered:
+	•	On scroll updates (ScrollTrigger onUpdate).
+	•	On mouse movement (mousemove listener).
+	•	Optional: continuous requestAnimationFrame if subtle idle animation is needed.
+
+5. Non-Functional Requirements
+	•	Page must perform smoothly on modern desktop browsers.
+	•	Mobile support optional for prototype, but structure should be extensible.
+	•	Code must be clean, modular, and easily understood by developers.
+	•	No bundlers or frameworks required—vanilla JavaScript preferred for clarity.
+	•	Ensure compatibility with smooth scroll libraries like ScrollSmoother, Lenis, or Locomotive Scroll. If a smooth scroll library is used, configure ScrollTrigger properly using scrollerProxy or GSAP's native integration (in case of ScrollSmoother).
+
+6. File Structure
+
+project/
+  index.html
+  styles.css
+  main.js
+  /models
+    model.glb
+  /libs
+    three.module.js
+    GLTFLoader.js
+    gsap.min.js
+    ScrollTrigger.min.js
+    ScrollSmoother.min.js
+
+7. Implementation Steps
+	1.	Setup HTML structure:
+	•	Include sections with content placeholders.
+	•	Add canvas element.
+	2.	Initialize Three.js:
+	•	Set up scene, camera, lights, and renderer.
+	•	Load glTF model with GLTFLoader.
+	3.	Apply GSAP ScrollTrigger:
+	•	Create tweens to animate model position and rotation based on scroll.
+	•	Use scrub: true for scroll-sync.
+	4.	Optional: Apply GSAP ScrollSmoother:
+	•	Wrap scrollable content in the required structure.
+	•	Use GSAP's ScrollSmoother.create() API.
+	•	Confirm ScrollTrigger works in sync with ScrollSmoother.
+	5.	Mouse Parallax:
+	•	Capture cursor position.
+	•	Interpolate camera or model offset smoothly.
+	6.	Render Loop (if needed):
+	•	Otherwise, render on onUpdate and mousemove only.
+
+8. Deliverables
+	•	Working prototype hosted locally or on a test server.
+	•	All source files zipped or published to GitHub.
+	•	README documenting setup and animation behavior.
+
+9. Handoff Notes
+	•	Emphasize separation of animation logic from rendering logic.
+	•	Point devs to ScrollTrigger and Three.js docs for extensibility.
+	•	List known performance tips (e.g. pixelRatio caps, glTF optimization).
+	•	Suggest enhancements (e.g. add ScrollSmoother or OrbitControls later).
+	•	Clearly mark which sections use smooth scrolling and how they are configured.
+
+10. References
+	•	https://threejs.org/docs/
+	•	https://greensock.com/scrolltrigger/
+	•	https://greensock.com/scrollsmoother/
+	•	https://www.khronos.org/gltf/
+
+End of PRD 
