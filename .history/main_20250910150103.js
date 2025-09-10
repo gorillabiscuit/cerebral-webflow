@@ -2,6 +2,7 @@
 // Three.js scene with glass shader and scroll/mouse interactions
 
 import * as THREE from 'three';
+import { GLTFLoader } from './libs/GLTFLoader.js';
 
 console.log('Three.js Glass Shader Scene initialized');
 
@@ -528,6 +529,40 @@ function createGlassCube() {
     });
 }
 
+// Fallback geometry if model loading fails
+function createFallbackGeometry() {
+    console.log('Creating fallback geometry...');
+    
+    const geometry = new THREE.IcosahedronGeometry(2, 4);
+    const material = new THREE.ShaderMaterial({
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        uniforms: uniforms,
+        side: THREE.DoubleSide
+    });
+    
+    // Check for shader compilation errors
+    if (material.program && material.program.error) {
+        console.error('Fallback shader compilation error:', material.program.error);
+    } else {
+        console.log('Fallback shader compiled successfully');
+    }
+    
+    mesh = new THREE.Mesh(geometry, material);
+    wrapper = new THREE.Group();
+    wrapper.add(mesh);
+    wrapper.scale.set(3, 3, 3);
+    scene.add(wrapper);
+    
+    isModelReady = true;
+    console.log('Fallback geometry ready for animation');
+    
+    // Debug: Log all objects in scene
+    console.log('All objects in scene (fallback):');
+    scene.traverse((object) => {
+        console.log('-', object.type, object.name || 'unnamed', 'visible:', object.visible);
+    });
+}
 
 // Add event listeners
 function addEventListeners() {
