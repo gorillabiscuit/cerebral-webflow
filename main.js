@@ -4,7 +4,6 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 console.log('Three.js Glass Shader Scene initialized');
 
@@ -19,6 +18,11 @@ let uniforms;
 let mouseInfluence = { x: 0, y: 0 };
 let lastMousePos = { x: 0, y: 0 };
 let controls;
+
+// Scroll and interaction variables
+let scrollPos = 0;
+let mouse = { x: 0, y: 0 };
+let isHovering = false;
 
 // Shader code
 const vertexShader = `
@@ -240,13 +244,8 @@ function init() {
     // Create glass cube
     createGlassCube();
     
-    // Add OrbitControls
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.enableZoom = true;
-    controls.enablePan = true;
-    controls.enableRotate = true;
+    // Add scroll and mouse event listeners
+    addScrollAndMouseListeners();
     
     // Add event listeners
     addEventListeners();
@@ -301,6 +300,7 @@ function create3DText() {
             
             // Create text mesh
             const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+            textMesh.name = 'cerebralText'; // Add name for easy reference
             
             // Position text between plane (-5.0 z) and cube (0 z) 
             textMesh.position.set(centerOffsetX, centerOffsetY, -2.5 + centerOffsetZ);
@@ -349,6 +349,31 @@ function createGlassCube() {
     isModelReady = true;
 }
 
+
+// Add scroll and mouse listeners for Webflow-style interactions
+function addScrollAndMouseListeners() {
+    // Scroll event listener
+    window.addEventListener('scroll', () => {
+        scrollPos = (window.pageYOffset || document.scrollTop) - (document.clientTop || 0) || 0;
+    });
+    
+    // Mouse move event listener
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX / window.innerWidth - 0.5;
+        mouse.y = e.clientY / window.innerHeight - 0.5;
+    });
+    
+    // Hover detection on text elements
+    const titles = Array.from(document.querySelectorAll('h1'));
+    titles.forEach((title) => {
+        title.addEventListener('mouseover', () => {
+            isHovering = true;
+        });
+        title.addEventListener('mouseleave', () => {
+            isHovering = false;
+        });
+    });
+}
 
 // Add event listeners
 function addEventListeners() {
@@ -403,29 +428,25 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
     
-    // Update controls
-    if (controls) {
-        controls.update();
-    }
+    // Update camera position based on scroll (like Webflow example)
+    camera.position.y = -scrollPos * 0.005;
     
     if (wrapper && isModelReady) {
-        const time = Date.now() * 0.001; // Convert to seconds
+        // Use GSAP for smooth mouse-driven rotations
+        gsap.to(wrapper.rotation, {
+            x: mouse.y * 0.5,
+            y: mouse.x * 0.5,
+            duration: 1,
+            ease: "power2.out"
+        });
         
-        // Decay mouse influence over time
-        mouseInfluence.x *= 0.98;
-        mouseInfluence.y *= 0.98;
-        
-        // X-axis: varying rate with sine wave modulation + mouse Y influence
-        const xRate = 0.2 + Math.sin(time * 0.1) * 0.15;
-        wrapper.rotation.x += xRate * 0.02 + mouseInfluence.y * 0.05;
-        
-        // Y-axis: varying rate with cosine wave modulation + mouse X influence
-        const yRate = 0.3 + Math.cos(time * 0.08) * 0.2;
-        wrapper.rotation.y += yRate * 0.02 + mouseInfluence.x * 0.05;
-        
-        // Z-axis: varying rate with sine wave modulation at different frequency
-        const zRate = 0.15 + Math.sin(time * 0.12) * 0.1;
-        wrapper.rotation.z += zRate * 0.02;
+        // Change text color based on hover state (similar to example)
+        const textMesh = scene.getObjectByName('cerebralText');
+        if (textMesh) {
+            textMesh.material.color = isHovering 
+                ? new THREE.Color(0.0, 1.0, 0.0)  // Green when hovering
+                : new THREE.Color(1.0, 0.0, 0.0); // Red normally
+        }
     }
     
     // Glass refraction rendering
