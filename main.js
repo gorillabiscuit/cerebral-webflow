@@ -1,5 +1,5 @@
-// Main JavaScript file for NFTfi Marketing Site - Single Scroll
-// Three.js scene with glass shader and scroll/mouse interactions
+// Three.js Glass Shader Scene
+// Features a glass cube with advanced refraction shaders, 3D text, and mouse interactions
 
 import * as THREE from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
