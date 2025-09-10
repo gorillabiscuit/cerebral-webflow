@@ -12,9 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@floating-ui/dom": "^1.7.3",
-    "gsap": "^3.13.0",
-    "task-master-ai": "^0.22.0",
     "three": "^0.178.0"
   },
   "devDependencies": {
