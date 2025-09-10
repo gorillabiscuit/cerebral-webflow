@@ -154,7 +154,7 @@ void main() {
 function init() {
     
     // Get canvas
-    canvas = document.getElementById('three-canvas');
+    canvas = document.getElementById('webgl');
     
     // Create scene
     scene = new THREE.Scene();

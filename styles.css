@@ -6,32 +6,76 @@
 }
 
 html, body {
-    height: 100%;
-    overflow: hidden;
-}
-
-body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Outfit', 'Courier New', Courier, monospace;
     line-height: 1.6;
     color: white;
-    background-color: #271E23;
 }
 
-/* Three.js Container - Full Screen */
-#three-container {
+/* Fixed Three.js Canvas Background */
+#webgl {
     position: fixed;
     top: 0;
+    bottom: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
-    pointer-events: auto;
-}
-
-/* Three.js Canvas - Full Screen */
-#three-canvas {
+    right: 0;
+    z-index: -1;
     width: 100%;
     height: 100%;
-    display: block;
 }
 
+/* Scrollable Content Sections */
+main {
+    position: relative;
+    z-index: 1;
+}
+
+section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.content {
+    text-align: center;
+    max-width: 600px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 3rem;
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.content h1 {
+    font-size: 3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, #fff, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.content p {
+    font-size: 1.2rem;
+    font-weight: 300;
+    opacity: 0.9;
+    line-height: 1.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content {
+        padding: 2rem;
+        margin: 0 1rem;
+    }
+    
+    .content h1 {
+        font-size: 2rem;
+    }
+    
+    .content p {
+        font-size: 1rem;
+    }
+}
