@@ -1,104 +1,135 @@
-Product Requirements Document (PRD): Scrolling One-Page Marketing Site with Three.js and ScrollTrigger Animation
+Product Requirements Document (PRD): Three.js Glass Shader Scene with 3D Typography
 
 1. Overview
 
-This PRD outlines the specifications for building a prototype one-page marketing site that uses scroll and mouse interaction to drive simple yet powerful 3D animations. The purpose of the prototype is to serve as a reference and technical guide for handoff to a development team.
+This PRD outlines the specifications for a Three.js-based interactive 3D scene featuring a glass cube with advanced refraction shaders and 3D typography. The project demonstrates sophisticated WebGL rendering techniques with mouse-driven camera controls and custom GLSL shaders.
 
 2. Goals
-	•	Create a smooth-scrolling one-pager with pinned 3D content.
-	•	Use scroll and mouse interactions to animate a simple 3D object.
-	•	Deliver a performant, well-documented prototype using Three.js and GSAP ScrollTrigger.
-	•	Demonstrate key scroll + mouse interactions that can be used as the basis for production.
+	•	Create an immersive full-screen 3D scene with glass refraction effects.
+	•	Implement advanced GLSL fragment and vertex shaders for realistic glass rendering.
+	•	Display 3D typography using custom fonts (Outfit Regular) with proper geometry handling.
+	•	Provide interactive camera controls for scene exploration.
+	•	Deliver a performant, clean codebase demonstrating modern Three.js techniques.
 
 3. Tech Stack
-	•	Three.js for 3D scene creation.
-	•	GSAP (GreenSock Animation Platform) with ScrollTrigger plugin for scroll-driven animation.
-	•	GSAP ScrollSmoother for smooth/inertial scroll behavior (optional but recommended).
-	•	HTML/CSS/JavaScript as base technologies (no framework).
-	•	Optional: GLTFLoader for loading .glb or .gltf models.
+	•	Three.js (core 3D library) for scene management, geometries, materials, and rendering.
+	•	Custom GLSL shaders (vertex and fragment) for glass refraction effects.
+	•	FontLoader and TextGeometry for 3D typography rendering.
+	•	OrbitControls for interactive camera navigation.
+	•	WebGL rendering with render targets for refraction effects.
+	•	Vite for development server and build tooling.
+	•	Google Fonts (Outfit family) for typography.
 
 4. Functional Requirements
 
-4.1 Scrolling Interaction
-	•	The page consists of multiple <section> elements, each taking 100vh.
-	•	The Three.js canvas is fixed fullscreen and persists across scroll.
-	•	ScrollTrigger is used to tie scroll position to 3D object transformations.
-	•	One or more ScrollTrigger timelines will be used to:
-	•	Move object into view on initial scroll.
-	•	Rotate the object (e.g. 90 degrees on Y-axis).
-	•	Transition between animations across scroll sections.
-	•	Optional: Integrate GSAP ScrollSmoother to provide inertia-based smooth scrolling for enhanced UX. If not used, native scroll behavior should be maintained and compatible with ScrollTrigger.
+4.1 Glass Cube Rendering
+	•	BoxGeometry (2x2x2 units) scaled to 6x6x6 for prominent display.
+	•	Custom ShaderMaterial with advanced glass properties:
+		- Refraction index control (IOR)
+		- Shininess and diffuseness parameters
+		- Multiple render targets for realistic refraction
+		- Double-sided rendering for proper glass thickness
+	•	Real-time shader compilation with error handling.
 
-4.2 Mouse Interaction
-	•	Cursor movement is captured and normalized (-0.5 to 0.5).
-	•	Parallax effect applied via camera group or object rotation:
-	•	Example: Camera or object tilts slightly based on cursor.
-	•	Inertia added via linear interpolation (lerp) for smooth follow.
+4.2 3D Typography
+	•	Text content: "cerebral" in Outfit Regular font.
+	•	TextGeometry with minimal depth (0.1 units) for clean appearance.
+	•	Proper text centering and positioning between background plane and glass cube.
+	•	Red material for development visibility (easily customizable).
+	•	Font loading via converted Three.js typeface JSON format.
 
-4.3 Rendering Behavior
-	•	Canvas is rendered:
-	•	On scroll updates (ScrollTrigger onUpdate).
-	•	On mouse movement (mousemove listener).
-	•	Optional: continuous requestAnimationFrame if subtle idle animation is needed.
+4.3 Scene Composition
+	•	Background plane (white, 20x15 units) positioned at z: -5.0 for refraction reference.
+	•	Text positioned at z: -2.5 (between plane and cube).
+	•	Glass cube at origin (0, 0, 0) as focal point.
+	•	Camera positioned at (0, 0, 33.6) for optimal viewing angle.
 
-5. Non-Functional Requirements
-	•	Page must perform smoothly on modern desktop browsers.
-	•	Mobile support optional for prototype, but structure should be extensible.
-	•	Code must be clean, modular, and easily understood by developers.
-	•	No bundlers or frameworks required—vanilla JavaScript preferred for clarity.
-	•	Ensure compatibility with smooth scroll libraries like ScrollSmoother, Lenis, or Locomotive Scroll. If a smooth scroll library is used, configure ScrollTrigger properly using scrollerProxy or GSAP's native integration (in case of ScrollSmoother).
+4.4 Interactive Controls
+	•	OrbitControls for mouse-driven camera navigation:
+		- Left click + drag: Rotate around scene
+		- Right click + drag: Pan camera
+		- Mouse wheel: Zoom in/out
+		- Smooth damping for natural feel
+	•	Mouse position influence on cube rotation for subtle interactivity.
 
-6. File Structure
+4.5 Lighting Setup
+	•	Comprehensive multi-light setup:
+		- Ambient light for base illumination
+		- Multiple directional lights for proper glass highlighting
+		- Point light for additional scene depth
+		- Light parameters integrated into shader uniforms
+
+5. Technical Implementation
+
+5.1 Shader System
+	•	Vertex shader handles:
+		- Model-view-projection transformations
+		- Normal vector calculations
+		- UV coordinate passing
+	•	Fragment shader implements:
+		- Glass refraction calculations
+		- Fresnel effects
+		- Multiple texture sampling
+		- Color mixing and transparency
+
+5.2 Render Pipeline
+	•	Main render target for scene capture
+	•	Back render target for refraction effects
+	•	Dual-pass rendering for realistic glass appearance
+	•	Automatic resolution handling with device pixel ratio optimization
+
+5.3 Font Integration
+	•	Local font file (Outfit_Regular.json) in typeface format
+	•	Fallback error handling for font loading failures
+	•	Proper geometry computation and centering algorithms
+	•	Z-axis depth control to prevent geometry artifacts
+
+6. Non-Functional Requirements
+	•	Smooth 60fps performance on modern browsers
+	•	Responsive full-screen rendering (100vw x 100vh)
+	•	Clean console output with minimal debugging
+	•	Error handling for shader compilation and font loading
+	•	Modular code structure for easy maintenance and extension
+
+7. File Structure
 
 project/
-  index.html
-  styles.css
-  main.js
-  /models
-    model.glb
-  /libs
-    three.module.js
-    GLTFLoader.js
-    gsap.min.js
-    ScrollTrigger.min.js
-    ScrollSmoother.min.js
+  index.html              # Main HTML structure
+  main.js                 # Core Three.js application
+  styles.css              # Full-screen canvas styling
+  package.json            # Dependencies and build scripts
+  /fonts
+    Outfit_Regular.json   # Three.js typeface font file
 
-7. Implementation Steps
-	1.	Setup HTML structure:
-	•	Include sections with content placeholders.
-	•	Add canvas element.
-	2.	Initialize Three.js:
-	•	Set up scene, camera, lights, and renderer.
-	•	Load glTF model with GLTFLoader.
-	3.	Apply GSAP ScrollTrigger:
-	•	Create tweens to animate model position and rotation based on scroll.
-	•	Use scrub: true for scroll-sync.
-	4.	Optional: Apply GSAP ScrollSmoother:
-	•	Wrap scrollable content in the required structure.
-	•	Use GSAP's ScrollSmoother.create() API.
-	•	Confirm ScrollTrigger works in sync with ScrollSmoother.
-	5.	Mouse Parallax:
-	•	Capture cursor position.
-	•	Interpolate camera or model offset smoothly.
-	6.	Render Loop (if needed):
-	•	Otherwise, render on onUpdate and mousemove only.
+8. Current Implementation Status
+	•	✅ Full-screen Three.js scene with WebGL renderer
+	•	✅ Advanced glass cube with custom GLSL shaders
+	•	✅ 3D text rendering with Outfit font integration
+	•	✅ OrbitControls for interactive navigation
+	•	✅ Multi-light setup for realistic illumination
+	•	✅ Clean codebase with minimal debugging output
+	•	✅ Proper error handling and fallbacks
 
-8. Deliverables
-	•	Working prototype hosted locally or on a test server.
-	•	All source files zipped or published to GitHub.
-	•	README documenting setup and animation behavior.
+9. Future Enhancement Opportunities
+	•	Post-processing effects (bloom, tone mapping)
+	•	Animation systems (rotation, scaling, morphing)
+	•	Additional 3D objects and scene complexity
+	•	Mobile optimization and touch controls
+	•	Performance monitoring and optimization
+	•	Advanced shader effects (caustics, dispersion)
 
-9. Handoff Notes
-	•	Emphasize separation of animation logic from rendering logic.
-	•	Point devs to ScrollTrigger and Three.js docs for extensibility.
-	•	List known performance tips (e.g. pixelRatio caps, glTF optimization).
-	•	Suggest enhancements (e.g. add ScrollSmoother or OrbitControls later).
-	•	Clearly mark which sections use smooth scrolling and how they are configured.
+10. Development Notes
+	•	Uses Vite dev server for hot reloading during development
+	•	Shader compilation errors are logged for debugging
+	•	Font loading includes error callbacks for troubleshooting
+	•	OrbitControls provide immediate visual feedback for development
+	•	Modular function structure allows easy feature additions
 
-10. References
-	•	https://threejs.org/docs/
-	•	https://greensock.com/scrolltrigger/
-	•	https://greensock.com/scrollsmoother/
-	•	https://www.khronos.org/gltf/
+11. References
+	•	https://threejs.org/docs/ - Three.js documentation
+	•	https://threejs.org/examples/#webgl_materials_glass - Glass material examples
+	•	https://threejs.org/examples/#webgl_geometry_text - Text geometry examples
+	•	https://fonts.google.com/specimen/Outfit - Outfit font family
+	•	https://vitejs.dev/ - Vite build tool documentation
 
-End of PRD 
+End of PRD
