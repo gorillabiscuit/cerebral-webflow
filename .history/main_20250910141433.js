@@ -368,22 +368,32 @@ function init() {
     // Get canvas
     canvas = document.getElementById('three-canvas');
     
+    // Calculate square size like GitHub version
+    const size = Math.min(window.innerWidth, window.innerHeight, 800);
+    
     // Create scene
     scene = new THREE.Scene();
-    scene.background = null; // Transparent background
+    // Set transparent background instead of black
+    scene.background = null;
     
-    // Create camera with full screen aspect ratio
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 0, 33.6);
+    // Create camera
+    camera = new THREE.PerspectiveCamera(18, size / size, 0.1, 1000); // FOV 18, square aspect
+    camera.position.set(0, 0, 33.6); // Match UI defaults
     
     // Create renderer
     renderer = new THREE.WebGLRenderer({ 
         canvas: canvas,
-        alpha: true,
+        alpha: true, // Enable transparency
         antialias: true 
     });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(size, size);
+    renderer.setClearColor(0x000000, 0); // Transparent clear color
+    
+    // Set square aspect ratio like GitHub version
+    renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    // Set clear color to transparent
     renderer.setClearColor(0x000000, 0);
     
     // Create render targets with full window resolution like GitHub version
@@ -623,12 +633,11 @@ function addEventListeners() {
 
 // Window resize handler
 function onWindowResize() {
-    // Update camera aspect ratio to match window
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    const size = Math.min(window.innerWidth, window.innerHeight, 800);
     
-    // Update renderer size
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = size / size; // Square aspect ratio
+    camera.updateProjectionMatrix();
+    renderer.setSize(size, size);
     
     // Update render targets
     mainRenderTarget.setSize(
@@ -670,6 +679,8 @@ function animate() {
     
     // Glass refraction rendering
     if (mesh) {
+        console.log('Rendering glass refraction...');
+        
         mesh.visible = false;
         
         // Back side render
@@ -678,6 +689,7 @@ function animate() {
         
         mesh.material.uniforms.uTexture.value = backRenderTarget.texture;
         mesh.material.side = THREE.BackSide;
+        console.log('Back render target texture:', backRenderTarget.texture);
         
         mesh.visible = true;
         
@@ -687,6 +699,7 @@ function animate() {
         
         mesh.material.uniforms.uTexture.value = mainRenderTarget.texture;
         mesh.material.side = THREE.FrontSide;
+        console.log('Main render target texture:', mainRenderTarget.texture);
         
         renderer.setRenderTarget(null);
     }

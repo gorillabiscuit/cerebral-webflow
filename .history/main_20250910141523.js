@@ -623,12 +623,11 @@ function addEventListeners() {
 
 // Window resize handler
 function onWindowResize() {
-    // Update camera aspect ratio to match window
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    const size = Math.min(window.innerWidth, window.innerHeight, 800);
     
-    // Update renderer size
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = size / size; // Square aspect ratio
+    camera.updateProjectionMatrix();
+    renderer.setSize(size, size);
     
     // Update render targets
     mainRenderTarget.setSize(
@@ -670,6 +669,8 @@ function animate() {
     
     // Glass refraction rendering
     if (mesh) {
+        console.log('Rendering glass refraction...');
+        
         mesh.visible = false;
         
         // Back side render
@@ -678,6 +679,7 @@ function animate() {
         
         mesh.material.uniforms.uTexture.value = backRenderTarget.texture;
         mesh.material.side = THREE.BackSide;
+        console.log('Back render target texture:', backRenderTarget.texture);
         
         mesh.visible = true;
         
@@ -687,6 +689,7 @@ function animate() {
         
         mesh.material.uniforms.uTexture.value = mainRenderTarget.texture;
         mesh.material.side = THREE.FrontSide;
+        console.log('Main render target texture:', mainRenderTarget.texture);
         
         renderer.setRenderTarget(null);
     }

@@ -670,6 +670,8 @@ function animate() {
     
     // Glass refraction rendering
     if (mesh) {
+        console.log('Rendering glass refraction...');
+        
         mesh.visible = false;
         
         // Back side render
@@ -678,6 +680,7 @@ function animate() {
         
         mesh.material.uniforms.uTexture.value = backRenderTarget.texture;
         mesh.material.side = THREE.BackSide;
+        console.log('Back render target texture:', backRenderTarget.texture);
         
         mesh.visible = true;
         
@@ -687,6 +690,7 @@ function animate() {
         
         mesh.material.uniforms.uTexture.value = mainRenderTarget.texture;
         mesh.material.side = THREE.FrontSide;
+        console.log('Main render target texture:', mainRenderTarget.texture);
         
         renderer.setRenderTarget(null);
     }
