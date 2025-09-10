@@ -1,0 +1,20 @@
+{
+  "name": "three-glass-shader-scene",
+  "version": "1.0.0",
+  "description": "A Three.js scene featuring a glass cube with advanced refraction shaders and 3D text using Outfit font.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["three.js", "webgl", "glass-shader", "refraction", "3d", "glsl", "shader", "typography"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.178.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.6"
+  }
+}
