@@ -152,7 +152,6 @@ void main() {
 
 // Initialize Three.js scene
 function init() {
-    console.log('Initializing Three.js scene...');
     
     // Get canvas
     canvas = document.getElementById('three-canvas');
@@ -203,8 +202,6 @@ function init() {
         winResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight).multiplyScalar(Math.min(window.devicePixelRatio, 2)) },
         uTexture: { value: null }
     };
-    
-    console.log('Uniforms initialized:', uniforms);
     
     // Add comprehensive lighting setup
     // Ambient light for overall illumination
@@ -271,7 +268,6 @@ function createBackgroundGeometry() {
 
 // Create 3D text
 function create3DText() {
-    console.log('Creating 3D text...');
     
     const fontLoader = new FontLoader();
     
@@ -296,21 +292,9 @@ function create3DText() {
             textGeometry.computeBoundingBox();
             const bbox = textGeometry.boundingBox;
             
-            // Log detailed bounding box information
-            console.log('=== TEXT GEOMETRY DEBUG ===');
-            console.log('Bounding Box:', bbox);
-            console.log('Width (X):', bbox.max.x - bbox.min.x);
-            console.log('Height (Y):', bbox.max.y - bbox.min.y);
-            console.log('Depth (Z):', bbox.max.z - bbox.min.z);
-            console.log('Min XYZ:', bbox.min);
-            console.log('Max XYZ:', bbox.max);
-            
             const centerOffsetX = -0.5 * (bbox.max.x - bbox.min.x);
             const centerOffsetY = -0.5 * (bbox.max.y - bbox.min.y);
-            // IGNORE the Z offset - the geometry has incorrect depth despite height: 0
-            const centerOffsetZ = 0; // Force Z-centering to 0
-            
-            console.log('Center Offsets - X:', centerOffsetX, 'Y:', centerOffsetY, 'Z (FORCED):', centerOffsetZ);
+            const centerOffsetZ = 0; // Force Z-centering to 0 to prevent depth artifacts
             
             // Create RED material for text (easy to see)
             const textMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
@@ -319,20 +303,12 @@ function create3DText() {
             const textMesh = new THREE.Mesh(textGeometry, textMaterial);
             
             // Position text between plane (-5.0 z) and cube (0 z) 
-            // Use centerOffsetZ to counteract the geometry's incorrect depth
             textMesh.position.set(centerOffsetX, centerOffsetY, -2.5 + centerOffsetZ);
-            
-            console.log('Final text position:', textMesh.position);
-            console.log('Text mesh scale:', textMesh.scale);
             
             // Add to scene
             scene.add(textMesh);
-            
-            console.log('3D text "cerebral" added to scene');
         },
-        (progress) => {
-            console.log('Font loading progress:', (progress.loaded / progress.total * 100) + '%');
-        },
+        undefined, // No progress callback needed
         (error) => {
             console.error('Error loading font:', error);
         }
@@ -341,8 +317,6 @@ function create3DText() {
 
 // Create glass cube
 function createGlassCube() {
-    console.log('Creating glass cube...');
-    
     // Create cube geometry
     const geometry = new THREE.BoxGeometry(2, 2, 2);
     
@@ -354,11 +328,9 @@ function createGlassCube() {
         side: THREE.DoubleSide
     });
     
-    // Check for shader compilation errors
+    // Check for shader compilation errors (keep error logging)
     if (material.program && material.program.error) {
         console.error('Shader compilation error:', material.program.error);
-    } else {
-        console.log('Glass shader compiled successfully');
     }
     
     // Create mesh
@@ -375,13 +347,6 @@ function createGlassCube() {
     scene.add(wrapper);
     
     isModelReady = true;
-    console.log('Glass cube ready for animation');
-    
-    // Debug: Log all objects in scene
-    console.log('All objects in scene:');
-    scene.traverse((object) => {
-        console.log('-', object.type, object.name || 'unnamed', 'visible:', object.visible);
-    });
 }
 
 
@@ -491,7 +456,6 @@ function animate() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, ready to initialize Three.js scene');
     init();
     animate();
 });
