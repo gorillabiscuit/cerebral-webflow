@@ -10,12 +10,41 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <main>
+        <section>
+            <div class="content">
+                <h1>Glass</h1>
+                <p>Advanced GLSL shaders creating realistic refraction effects through custom vertex and fragment shader implementation.</p>
+            </div>
+        </section>
+        
+        <section>
+            <div class="content">
+                <h1>Refraction</h1>
+                <p>Multi-pass rendering with dual render targets enables sophisticated light bending and realistic glass appearance.</p>
+            </div>
+        </section>
+        
+        <section>
+            <div class="content">
+                <h1>Typography</h1>
+                <p>3D text rendered with Outfit font using TextGeometry, precisely positioned between background plane and glass cube.</p>
+            </div>
+        </section>
+        
+        <section>
+            <div class="content">
+                <h1>Interactive</h1>
+                <p>Scroll and mouse interactions drive camera movement and object animations for an immersive WebGL experience.</p>
+            </div>
+        </section>
+    </main>
 
     <!-- Three.js Canvas Background -->
     <canvas id="webgl"></canvas>
 
     <!-- ============================================= -->
-    <!-- WEBFLOW HEAD CODE: Copy these 6 script tags -->
+    <!-- WEBFLOW HEAD CODE: Copy these 4 script tags -->
     <!-- Paste in: Page Settings → Custom Code → Head Code -->
     <!-- ============================================= -->
     
@@ -25,8 +54,7 @@
     <!-- Three.js Addons for r128 - Global Script Versions -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/FontLoader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/geometries/TextGeometry.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
 
     <!-- GSAP Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
@@ -42,7 +70,7 @@
 <!-- WEBFLOW HTML EMBED: Add this canvas element -->
 <!-- Add as: HTML Embed Element on your page -->
 <!-- ============================================= -->
-<!-- <canvas id="webgl" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></canvas> -->
+<canvas id="webgl" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></canvas>
 <!-- ============================================= -->
 <!-- END WEBFLOW HTML EMBED -->
 <!-- ============================================= -->
@@ -73,8 +101,12 @@
         let uniforms;
         let mouseInfluence = { x: 0, y: 0 };
         let lastMousePos = { x: 0, y: 0 };
-        let mouse = { x: 0, y: 0 };
         let controls;
+
+        // Scroll and interaction variables
+        let scrollPos = 0;
+        let mouse = { x: 0, y: 0 };
+        let isHovering = false;
 
         // Shader code
         const vertexShader = `
@@ -299,8 +331,8 @@
             // Create glass cube
             createGlassCube();
             
-            // Initialize OrbitControls
-            initializeOrbitControls();
+            // Add scroll and mouse event listeners
+            addScrollAndMouseListeners();
             
             // Add event listeners
             addEventListeners();
@@ -372,12 +404,6 @@
 
         // Load GLTF model
         function loadBarModel() {
-            // Check if GLTFLoader is available
-            if (typeof THREE.GLTFLoader === 'undefined') {
-                console.warn('GLTFLoader not available, skipping bar model');
-                return;
-            }
-            
             const gltfLoader = new THREE.GLTFLoader();
             
             // Load bar.glb model from GitHub CDN
@@ -441,32 +467,35 @@
         }
 
 
-        // Initialize OrbitControls
-        function initializeOrbitControls() {
-            // Check if OrbitControls is available
-            if (typeof THREE.OrbitControls === 'undefined') {
-                console.warn('OrbitControls not available');
-                return;
-            }
+        // Add scroll and mouse listeners for Webflow-style interactions
+        function addScrollAndMouseListeners() {
+            // Scroll event listener
+            window.addEventListener('scroll', () => {
+                scrollPos = (window.pageYOffset || document.scrollTop) - (document.clientTop || 0) || 0;
+            });
             
-            controls = new THREE.OrbitControls(camera, canvas);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.25;
-            controls.enableZoom = true;
-            controls.autoRotate = false;
-            controls.autoRotateSpeed = 2.0;
+            // Mouse move event listener
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX / window.innerWidth - 0.5;
+                mouse.y = e.clientY / window.innerHeight - 0.5;
+            });
             
-            console.log('OrbitControls initialized');
+            // Hover detection on text elements
+            const titles = Array.from(document.querySelectorAll('h1'));
+            titles.forEach((title) => {
+                title.addEventListener('mouseover', () => {
+                    isHovering = true;
+                });
+                title.addEventListener('mouseleave', () => {
+                    isHovering = false;
+                });
+            });
         }
 
         // Add event listeners
         function addEventListeners() {
-            // Mouse move handler for cube rotation
+            // Mouse move handler
             window.addEventListener('mousemove', (e) => {
-                // Update mouse position for cube rotation
-                mouse.x = e.clientX / window.innerWidth - 0.5;
-                mouse.y = e.clientY / window.innerHeight - 0.5;
-                
                 // Initialize lastMousePos if it hasn't been set yet
                 if (lastMousePos.x === 0 && lastMousePos.y === 0) {
                     lastMousePos.x = e.clientX;
@@ -516,20 +545,26 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // Update OrbitControls if available
-            if (controls) {
-                controls.update();
-            }
+            // Update camera position based on scroll (like Webflow example)
+            camera.position.y = -scrollPos * 0.005;
             
-            // Rotate cube based on mouse position using GSAP
             if (wrapper && isModelReady) {
+                // Use GSAP for smooth mouse-driven rotations with performance optimization
                 gsap.to(wrapper.rotation, {
                     x: mouse.y * 0.5,
                     y: mouse.x * 0.5,
                     duration: 0.8,
                     ease: "power2.out",
-                    overwrite: "auto"
+                    overwrite: "auto" // Prevent animation conflicts
                 });
+                
+                // Change text color based on hover state (similar to example)
+                const textMesh = scene.getObjectByName('cerebralText');
+                if (textMesh) {
+                    textMesh.material.color = isHovering 
+                        ? new THREE.Color(0.0, 1.0, 0.0)  // Green when hovering
+                        : new THREE.Color(1.0, 0.0, 0.0); // Red normally
+                }
             }
             
             // Glass refraction rendering
@@ -572,8 +607,6 @@
             console.log('THREE.REVISION:', THREE.REVISION);
             console.log('THREE.FontLoader available:', typeof THREE.FontLoader !== 'undefined');
             console.log('THREE.TextGeometry available:', typeof THREE.TextGeometry !== 'undefined');
-            console.log('THREE.OrbitControls available:', typeof THREE.OrbitControls !== 'undefined');
-            console.log('THREE.GLTFLoader available:', typeof THREE.GLTFLoader !== 'undefined');
             init();
             animate();
         });

@@ -25,7 +25,7 @@
     <!-- Three.js Addons for r128 - Global Script Versions -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/FontLoader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/geometries/TextGeometry.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <!-- GSAP Animation Library -->
@@ -42,7 +42,7 @@
 <!-- WEBFLOW HTML EMBED: Add this canvas element -->
 <!-- Add as: HTML Embed Element on your page -->
 <!-- ============================================= -->
-<!-- <canvas id="webgl" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></canvas> -->
+<canvas id="webgl" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></canvas>
 <!-- ============================================= -->
 <!-- END WEBFLOW HTML EMBED -->
 <!-- ============================================= -->
@@ -73,7 +73,11 @@
         let uniforms;
         let mouseInfluence = { x: 0, y: 0 };
         let lastMousePos = { x: 0, y: 0 };
+
+        // Scroll and interaction variables
+        let scrollPos = 0;
         let mouse = { x: 0, y: 0 };
+        let isHovering = false;
         let controls;
 
         // Shader code
@@ -459,33 +463,9 @@
             console.log('OrbitControls initialized');
         }
 
-        // Add event listeners
+        // Add essential event listeners
         function addEventListeners() {
-            // Mouse move handler for cube rotation
-            window.addEventListener('mousemove', (e) => {
-                // Update mouse position for cube rotation
-                mouse.x = e.clientX / window.innerWidth - 0.5;
-                mouse.y = e.clientY / window.innerHeight - 0.5;
-                
-                // Initialize lastMousePos if it hasn't been set yet
-                if (lastMousePos.x === 0 && lastMousePos.y === 0) {
-                    lastMousePos.x = e.clientX;
-                    lastMousePos.y = e.clientY;
-                    return;
-                }
-                
-                const deltaX = e.clientX - lastMousePos.x;
-                const deltaY = e.clientY - lastMousePos.y;
-                
-                // Add mouse movement to influence (normalized to screen size)
-                mouseInfluence.x += deltaX / window.innerWidth * 2.0;
-                mouseInfluence.y += deltaY / window.innerHeight * 2.0;
-                
-                lastMousePos.x = e.clientX;
-                lastMousePos.y = e.clientY;
-            });
-            
-            // Window resize handler
+            // Window resize handler only
             window.addEventListener('resize', onWindowResize);
         }
 
@@ -519,17 +499,28 @@
             // Update OrbitControls if available
             if (controls) {
                 controls.update();
-            }
-            
-            // Rotate cube based on mouse position using GSAP
-            if (wrapper && isModelReady) {
-                gsap.to(wrapper.rotation, {
-                    x: mouse.y * 0.5,
-                    y: mouse.x * 0.5,
-                    duration: 0.8,
-                    ease: "power2.out",
-                    overwrite: "auto"
-                });
+            } else {
+                // Fallback to scroll/mouse controls (like Webflow example)
+                camera.position.y = -scrollPos * 0.005;
+                
+                if (wrapper && isModelReady) {
+                    // Use GSAP for smooth mouse-driven rotations with performance optimization
+                    gsap.to(wrapper.rotation, {
+                        x: mouse.y * 0.5,
+                        y: mouse.x * 0.5,
+                        duration: 0.8,
+                        ease: "power2.out",
+                        overwrite: "auto" // Prevent animation conflicts
+                    });
+                    
+                    // Change text color based on hover state (similar to example)
+                    const textMesh = scene.getObjectByName('cerebralText');
+                    if (textMesh) {
+                        textMesh.material.color = isHovering 
+                            ? new THREE.Color(0.0, 1.0, 0.0)  // Green when hovering
+                            : new THREE.Color(1.0, 0.0, 0.0); // Red normally
+                    }
+                }
             }
             
             // Glass refraction rendering
