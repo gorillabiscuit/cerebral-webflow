@@ -537,6 +537,13 @@
             // Move cube forward towards camera by 2 units
             wrapper.position.set(0, 0, 2);
             
+            // 🔍 DEBUG: Check final wrapper world position
+            const wrapperBox = new THREE.Box3().setFromObject(wrapper);
+            const wrapperCenter = wrapperBox.getCenter(new THREE.Vector3());
+            console.log('Glass cube wrapper center after transforms:', wrapperCenter);
+            console.log('Wrapper position:', wrapper.position);
+            console.log('Wrapper scale:', wrapper.scale);
+            
             // Add axes helper to wrapper for visual reference
             const cubeAxes = new THREE.AxesHelper(2);
             cubeAxes.position.set(0, 0, 0);
@@ -605,7 +612,7 @@
 
         // Window resize handler
         function onWindowResize() {
-            // Use proper DPI-aware resize function
+            // 🔧 FIX 1: Use proper DPI-aware resize function
             resizeCanvasToDisplaySize();
             
             // Update render targets with new size
@@ -618,6 +625,8 @@
             
             // Update uniforms
             uniforms.winResolution.value.set(canvas.clientWidth, canvas.clientHeight).multiplyScalar(pixelRatio);
+            
+            console.log('Window resized - render targets updated to:', width, 'x', height);
         }
 
         // Animation loop

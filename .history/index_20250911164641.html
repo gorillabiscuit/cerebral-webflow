@@ -71,6 +71,9 @@
         // 🎮 CONTROLS TOGGLE: Enable/disable OrbitControls
         const ENABLE_ORBIT_CONTROLS = true; // Set to false to disable camera controls
 
+        // 🔧 FIX 3: Test with standard camera settings
+        const USE_STANDARD_CAMERA = true; // Set to false to use telephoto settings
+
         // 🎛️ BAR MODEL CONTROLS: Easy adjustment of model properties
         const BAR_MODEL = {
             scale: { x: 19, y: 19, z: 19 },
@@ -86,7 +89,10 @@
         };
 
         // 📷 CAMERA CONTROLS: Easy adjustment of camera position
-        const CAMERA = {
+        const CAMERA = USE_STANDARD_CAMERA ? {
+            position: { x: 0, y: 0, z: 10 },  // Standard distance
+            fov: 75 // Standard FOV
+        } : {
             position: { x: 0, y: 0, z: 133.6 },
             fov: 18 // 135mm focal length equivalent
         };
@@ -251,6 +257,23 @@
             camera = new THREE.PerspectiveCamera(CAMERA.fov, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(CAMERA.position.x, CAMERA.position.y, CAMERA.position.z);
             
+            // 🔍 CAMERA DEBUG: Check if camera is properly configured
+            console.log('=== CAMERA CONFIGURATION DEBUG ===');
+            console.log('Camera position:', camera.position);
+            console.log('Camera target (where it looks):', camera.getWorldDirection(new THREE.Vector3()));
+            console.log('Camera aspect ratio:', camera.aspect);
+            console.log('Window dimensions:', window.innerWidth, 'x', window.innerHeight);
+            console.log('Camera FOV:', camera.fov);
+            
+            // Check if camera is looking at origin by default
+            const lookDirection = new THREE.Vector3();
+            camera.getWorldDirection(lookDirection);
+            console.log('Camera looking direction:', lookDirection);
+            
+            // Calculate where camera is pointing in world space
+            const cameraTarget = new THREE.Vector3();
+            cameraTarget.copy(camera.position).add(lookDirection.multiplyScalar(100));
+            console.log('Camera pointing at world position:', cameraTarget);
             
             
             // Create renderer
@@ -260,11 +283,16 @@
                 antialias: true 
             });
             
-            // Proper DPI-aware canvas sizing
+            // 🔧 FIX 1: Proper DPI-aware canvas sizing
             function resizeCanvasToDisplaySize() {
                 const canvas = renderer.domElement;
                 const width = canvas.clientWidth;
                 const height = canvas.clientHeight;
+                
+                console.log('=== CANVAS RESIZE DEBUG ===');
+                console.log('Client dimensions:', width, 'x', height);
+                console.log('Current canvas dimensions:', canvas.width, 'x', canvas.height);
+                console.log('Device pixel ratio:', window.devicePixelRatio);
                 
                 // Critical: pass false to prevent CSS fighting
                 const pixelRatio = Math.min(window.devicePixelRatio, 2);
@@ -276,11 +304,29 @@
                 camera.clearViewOffset(); // Clear any existing offset
                 camera.updateProjectionMatrix();
                 
+                console.log('After resize - Canvas:', canvas.width, 'x', canvas.height);
+                console.log('After resize - Client:', canvas.clientWidth, 'x', canvas.clientHeight);
+                console.log('Camera aspect ratio:', camera.aspect);
+                
                 return canvas.width !== width * pixelRatio || canvas.height !== height * pixelRatio;
             }
             
             // Initial resize
             resizeCanvasToDisplaySize();
+            
+            // 🔍 RENDERER DEBUG: Check canvas and renderer configuration
+            console.log('=== RENDERER CONFIGURATION DEBUG ===');
+            console.log('Canvas element:', canvas);
+            console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+            console.log('Canvas client dimensions:', canvas.clientWidth, 'x', canvas.clientHeight);
+            console.log('Canvas style:', canvas.style.cssText);
+            console.log('Renderer size:', renderer.getSize(new THREE.Vector2()));
+            console.log('Pixel ratio:', renderer.getPixelRatio());
+            
+            // Check canvas position in viewport
+            const canvasRect = canvas.getBoundingClientRect();
+            console.log('Canvas position in viewport:', canvasRect);
+            console.log('Canvas offset from top-left:', canvasRect.left, canvasRect.top);
             renderer.setClearColor(0x000000, 0);
             
             // Create render targets with full window resolution like GitHub version
@@ -438,17 +484,24 @@
                     console.log('Bar model loaded successfully');
                     const barModel = gltf.scene;
                     
-                    // Center the geometry itself for proper positioning
+                    // 🔧 SOLUTION 1: Center the geometry itself (most robust approach)
                     const box = new THREE.Box3().setFromObject(barModel);
                     const center = box.getCenter(new THREE.Vector3());
                     
-                    // Apply centering transformation to ALL child geometries
+                    // 🔧 THREE.JS R128: Apply centering transformation to ALL child geometries
+                    console.log('=== R128 GEOMETRY CENTERING ===');
+                    let geometriesProcessed = 0;
+                    
                     barModel.traverse((child) => {
                         if (child.isMesh && child.geometry) {
+                            console.log('Processing geometry:', child.geometry.type || 'Unknown');
+                            
                             // r128 compatible geometry translation
                             if (typeof child.geometry.translate === 'function') {
                                 child.geometry.translate(-center.x, -center.y, -center.z);
+                                geometriesProcessed++;
                             } else {
+                                console.warn('geometry.translate() not available for:', child.geometry.type);
                                 // Fallback for r128 - manual vertex translation
                                 if (child.geometry.attributes && child.geometry.attributes.position) {
                                     const positions = child.geometry.attributes.position.array;
@@ -458,10 +511,13 @@
                                         positions[i + 2] -= center.z; // z
                                     }
                                     child.geometry.attributes.position.needsUpdate = true;
+                                    geometriesProcessed++;
                                 }
                             }
                         }
                     });
+                    
+                    console.log('Geometries processed for centering:', geometriesProcessed);
                     
                     // Add XYZ axes helper at origin (model should now be truly centered here)
                     const axesHelper = new THREE.AxesHelper(1);
@@ -473,11 +529,45 @@
                     barModel.position.set(BAR_MODEL.position.x, BAR_MODEL.position.y, BAR_MODEL.position.z);
                     barModel.rotation.set(BAR_MODEL.rotation.x, BAR_MODEL.rotation.y, BAR_MODEL.rotation.z);
                     
-                    // Ensure OrbitControls target the origin
+                    // OrbitControls should target origin by default
                     if (controls) {
                         controls.target.set(0, 0, 0);
                         controls.update();
                     }
+                    
+                    // 🔧 FIX 2: Three.js r128 compatible camera direction fix
+                    console.log('=== THREE.JS R128 CAMERA DIRECTION FIX ===');
+                    console.log('Before fix - Camera position:', camera.position);
+                    
+                    // Check if clearViewOffset exists (r128 compatibility)
+                    if (typeof camera.clearViewOffset === 'function') {
+                        camera.clearViewOffset();
+                        console.log('clearViewOffset() called successfully');
+                    } else {
+                        console.log('clearViewOffset() not available in this Three.js version');
+                        // Manual view offset reset for older versions
+                        if (camera.view) {
+                            camera.view = null;
+                        }
+                    }
+                    
+                    // Force camera to look directly at origin using r128 compatible method
+                    camera.lookAt(new THREE.Vector3(0, 0, 0));
+                    camera.updateProjectionMatrix();
+                    
+                    // r128 compatible direction check
+                    const direction = new THREE.Vector3();
+                    camera.getWorldDirection(direction);
+                    console.log('After fix - Camera direction:', direction);
+                    
+                    // Calculate where camera is pointing (r128 compatible)
+                    const target = new THREE.Vector3().copy(camera.position);
+                    target.add(direction.multiplyScalar(-camera.position.z)); // Use camera distance
+                    console.log('After fix - Camera should point at:', target);
+                    
+                    // Force matrix updates (r128 compatible)
+                    camera.updateMatrix();
+                    camera.updateMatrixWorld(true);
                     
                     // Make all materials in the model 50% transparent
                     barModel.traverse((child) => {
@@ -507,6 +597,21 @@
             // Create cube geometry
             const geometry = new THREE.BoxGeometry(2, 2, 2);
             
+            // 🔍 DEBUG: Check cube geometry centering
+            geometry.computeBoundingBox();
+            const cubeBox = geometry.boundingBox;
+            const cubeCenter = new THREE.Vector3();
+            cubeBox.getCenter(cubeCenter);
+            
+            console.log('=== GLASS CUBE CENTERING DEBUG ===');
+            console.log('Cube geometry bounding box:', cubeBox);
+            console.log('Cube geometry center:', cubeCenter);
+            console.log('Cube center values:', cubeCenter.x, cubeCenter.y, cubeCenter.z);
+            console.log('Is cube geometry centered?', 
+                Math.abs(cubeCenter.x) < 0.001, 
+                Math.abs(cubeCenter.y) < 0.001, 
+                Math.abs(cubeCenter.z) < 0.001
+            );
             
             // Create glass shader material
             const material = new THREE.ShaderMaterial({
@@ -536,6 +641,13 @@
             
             // Move cube forward towards camera by 2 units
             wrapper.position.set(0, 0, 2);
+            
+            // 🔍 DEBUG: Check final wrapper world position
+            const wrapperBox = new THREE.Box3().setFromObject(wrapper);
+            const wrapperCenter = wrapperBox.getCenter(new THREE.Vector3());
+            console.log('Glass cube wrapper center after transforms:', wrapperCenter);
+            console.log('Wrapper position:', wrapper.position);
+            console.log('Wrapper scale:', wrapper.scale);
             
             // Add axes helper to wrapper for visual reference
             const cubeAxes = new THREE.AxesHelper(2);
@@ -605,7 +717,7 @@
 
         // Window resize handler
         function onWindowResize() {
-            // Use proper DPI-aware resize function
+            // 🔧 FIX 1: Use proper DPI-aware resize function
             resizeCanvasToDisplaySize();
             
             // Update render targets with new size
@@ -618,6 +730,8 @@
             
             // Update uniforms
             uniforms.winResolution.value.set(canvas.clientWidth, canvas.clientHeight).multiplyScalar(pixelRatio);
+            
+            console.log('Window resized - render targets updated to:', width, 'x', height);
         }
 
         // Animation loop

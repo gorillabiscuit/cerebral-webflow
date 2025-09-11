@@ -473,11 +473,53 @@
                     barModel.position.set(BAR_MODEL.position.x, BAR_MODEL.position.y, BAR_MODEL.position.z);
                     barModel.rotation.set(BAR_MODEL.rotation.x, BAR_MODEL.rotation.y, BAR_MODEL.rotation.z);
                     
-                    // Ensure OrbitControls target the origin
+                    // OrbitControls should target origin by default
                     if (controls) {
                         controls.target.set(0, 0, 0);
                         controls.update();
                     }
+                    
+                    // 🔧 FIX 2: Three.js r128 compatible camera direction fix
+                    console.log('=== THREE.JS R128 CAMERA DIRECTION FIX ===');
+                    console.log('Before fix - Camera position:', camera.position);
+                    
+                    // Check if clearViewOffset exists (r128 compatibility)
+                    if (typeof camera.clearViewOffset === 'function') {
+                        camera.clearViewOffset();
+                        console.log('clearViewOffset() called successfully');
+                    } else {
+                        console.log('clearViewOffset() not available in this Three.js version');
+                        // Manual view offset reset for older versions
+                        if (camera.view) {
+                            camera.view = null;
+                        }
+                    }
+                    
+                    // 🔧 DIRECT CAMERA FIX: Reset camera completely
+                    console.log('=== DIRECT CAMERA RESET ===');
+                    
+                    // Reset camera position and rotation completely
+                    camera.position.set(0, 0, 10);
+                    camera.rotation.set(0, 0, 0);
+                    camera.quaternion.set(0, 0, 0, 1);
+                    
+                    // Force camera to look at origin (multiple methods for r128)
+                    camera.lookAt(0, 0, 0);
+                    camera.updateMatrix();
+                    camera.updateMatrixWorld(true);
+                    camera.updateProjectionMatrix();
+                    
+                    // Verify the fix with simple direction check
+                    const direction = new THREE.Vector3();
+                    camera.getWorldDirection(direction);
+                    console.log('After reset - Camera direction:', direction);
+                    console.log('After reset - Direction should be (0, 0, -1)');
+                    
+                    // Test: Create a simple ray from camera to see where it points
+                    const ray = new THREE.Ray(camera.position, direction);
+                    const distanceToOrigin = ray.distanceToPoint(new THREE.Vector3(0, 0, 0));
+                    console.log('Distance from camera ray to origin:', distanceToOrigin);
+                    console.log('Distance should be near 0 if camera points at origin');
                     
                     // Make all materials in the model 50% transparent
                     barModel.traverse((child) => {
@@ -507,6 +549,21 @@
             // Create cube geometry
             const geometry = new THREE.BoxGeometry(2, 2, 2);
             
+            // 🔍 DEBUG: Check cube geometry centering
+            geometry.computeBoundingBox();
+            const cubeBox = geometry.boundingBox;
+            const cubeCenter = new THREE.Vector3();
+            cubeBox.getCenter(cubeCenter);
+            
+            console.log('=== GLASS CUBE CENTERING DEBUG ===');
+            console.log('Cube geometry bounding box:', cubeBox);
+            console.log('Cube geometry center:', cubeCenter);
+            console.log('Cube center values:', cubeCenter.x, cubeCenter.y, cubeCenter.z);
+            console.log('Is cube geometry centered?', 
+                Math.abs(cubeCenter.x) < 0.001, 
+                Math.abs(cubeCenter.y) < 0.001, 
+                Math.abs(cubeCenter.z) < 0.001
+            );
             
             // Create glass shader material
             const material = new THREE.ShaderMaterial({
@@ -536,6 +593,13 @@
             
             // Move cube forward towards camera by 2 units
             wrapper.position.set(0, 0, 2);
+            
+            // 🔍 DEBUG: Check final wrapper world position
+            const wrapperBox = new THREE.Box3().setFromObject(wrapper);
+            const wrapperCenter = wrapperBox.getCenter(new THREE.Vector3());
+            console.log('Glass cube wrapper center after transforms:', wrapperCenter);
+            console.log('Wrapper position:', wrapper.position);
+            console.log('Wrapper scale:', wrapper.scale);
             
             // Add axes helper to wrapper for visual reference
             const cubeAxes = new THREE.AxesHelper(2);
@@ -605,7 +669,7 @@
 
         // Window resize handler
         function onWindowResize() {
-            // Use proper DPI-aware resize function
+            // 🔧 FIX 1: Use proper DPI-aware resize function
             resizeCanvasToDisplaySize();
             
             // Update render targets with new size
@@ -618,6 +682,8 @@
             
             // Update uniforms
             uniforms.winResolution.value.set(canvas.clientWidth, canvas.clientHeight).multiplyScalar(pixelRatio);
+            
+            console.log('Window resized - render targets updated to:', width, 'x', height);
         }
 
         // Animation loop

@@ -251,6 +251,23 @@
             camera = new THREE.PerspectiveCamera(CAMERA.fov, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(CAMERA.position.x, CAMERA.position.y, CAMERA.position.z);
             
+            // 🔍 CAMERA DEBUG: Check if camera is properly configured
+            console.log('=== CAMERA CONFIGURATION DEBUG ===');
+            console.log('Camera position:', camera.position);
+            console.log('Camera target (where it looks):', camera.getWorldDirection(new THREE.Vector3()));
+            console.log('Camera aspect ratio:', camera.aspect);
+            console.log('Window dimensions:', window.innerWidth, 'x', window.innerHeight);
+            console.log('Camera FOV:', camera.fov);
+            
+            // Check if camera is looking at origin by default
+            const lookDirection = new THREE.Vector3();
+            camera.getWorldDirection(lookDirection);
+            console.log('Camera looking direction:', lookDirection);
+            
+            // Calculate where camera is pointing in world space
+            const cameraTarget = new THREE.Vector3();
+            cameraTarget.copy(camera.position).add(lookDirection.multiplyScalar(100));
+            console.log('Camera pointing at world position:', cameraTarget);
             
             
             // Create renderer
@@ -259,28 +276,22 @@
                 alpha: true,
                 antialias: true 
             });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             
-            // Proper DPI-aware canvas sizing
-            function resizeCanvasToDisplaySize() {
-                const canvas = renderer.domElement;
-                const width = canvas.clientWidth;
-                const height = canvas.clientHeight;
-                
-                // Critical: pass false to prevent CSS fighting
-                const pixelRatio = Math.min(window.devicePixelRatio, 2);
-                renderer.setPixelRatio(pixelRatio);
-                renderer.setSize(width, height, false);
-                
-                // Update camera aspect ratio
-                camera.aspect = width / height;
-                camera.clearViewOffset(); // Clear any existing offset
-                camera.updateProjectionMatrix();
-                
-                return canvas.width !== width * pixelRatio || canvas.height !== height * pixelRatio;
-            }
+            // 🔍 RENDERER DEBUG: Check canvas and renderer configuration
+            console.log('=== RENDERER CONFIGURATION DEBUG ===');
+            console.log('Canvas element:', canvas);
+            console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+            console.log('Canvas client dimensions:', canvas.clientWidth, 'x', canvas.clientHeight);
+            console.log('Canvas style:', canvas.style.cssText);
+            console.log('Renderer size:', renderer.getSize(new THREE.Vector2()));
+            console.log('Pixel ratio:', renderer.getPixelRatio());
             
-            // Initial resize
-            resizeCanvasToDisplaySize();
+            // Check canvas position in viewport
+            const canvasRect = canvas.getBoundingClientRect();
+            console.log('Canvas position in viewport:', canvasRect);
+            console.log('Canvas offset from top-left:', canvasRect.left, canvasRect.top);
             renderer.setClearColor(0x000000, 0);
             
             // Create render targets with full window resolution like GitHub version
@@ -438,28 +449,14 @@
                     console.log('Bar model loaded successfully');
                     const barModel = gltf.scene;
                     
-                    // Center the geometry itself for proper positioning
+                    // 🔧 SOLUTION 1: Center the geometry itself (most robust approach)
                     const box = new THREE.Box3().setFromObject(barModel);
                     const center = box.getCenter(new THREE.Vector3());
                     
                     // Apply centering transformation to ALL child geometries
                     barModel.traverse((child) => {
                         if (child.isMesh && child.geometry) {
-                            // r128 compatible geometry translation
-                            if (typeof child.geometry.translate === 'function') {
-                                child.geometry.translate(-center.x, -center.y, -center.z);
-                            } else {
-                                // Fallback for r128 - manual vertex translation
-                                if (child.geometry.attributes && child.geometry.attributes.position) {
-                                    const positions = child.geometry.attributes.position.array;
-                                    for (let i = 0; i < positions.length; i += 3) {
-                                        positions[i] -= center.x;     // x
-                                        positions[i + 1] -= center.y; // y  
-                                        positions[i + 2] -= center.z; // z
-                                    }
-                                    child.geometry.attributes.position.needsUpdate = true;
-                                }
-                            }
+                            child.geometry.translate(-center.x, -center.y, -center.z);
                         }
                     });
                     
@@ -473,7 +470,7 @@
                     barModel.position.set(BAR_MODEL.position.x, BAR_MODEL.position.y, BAR_MODEL.position.z);
                     barModel.rotation.set(BAR_MODEL.rotation.x, BAR_MODEL.rotation.y, BAR_MODEL.rotation.z);
                     
-                    // Ensure OrbitControls target the origin
+                    // OrbitControls should target origin by default
                     if (controls) {
                         controls.target.set(0, 0, 0);
                         controls.update();
@@ -507,6 +504,21 @@
             // Create cube geometry
             const geometry = new THREE.BoxGeometry(2, 2, 2);
             
+            // 🔍 DEBUG: Check cube geometry centering
+            geometry.computeBoundingBox();
+            const cubeBox = geometry.boundingBox;
+            const cubeCenter = new THREE.Vector3();
+            cubeBox.getCenter(cubeCenter);
+            
+            console.log('=== GLASS CUBE CENTERING DEBUG ===');
+            console.log('Cube geometry bounding box:', cubeBox);
+            console.log('Cube geometry center:', cubeCenter);
+            console.log('Cube center values:', cubeCenter.x, cubeCenter.y, cubeCenter.z);
+            console.log('Is cube geometry centered?', 
+                Math.abs(cubeCenter.x) < 0.001, 
+                Math.abs(cubeCenter.y) < 0.001, 
+                Math.abs(cubeCenter.z) < 0.001
+            );
             
             // Create glass shader material
             const material = new THREE.ShaderMaterial({
@@ -536,6 +548,13 @@
             
             // Move cube forward towards camera by 2 units
             wrapper.position.set(0, 0, 2);
+            
+            // 🔍 DEBUG: Check final wrapper world position
+            const wrapperBox = new THREE.Box3().setFromObject(wrapper);
+            const wrapperCenter = wrapperBox.getCenter(new THREE.Vector3());
+            console.log('Glass cube wrapper center after transforms:', wrapperCenter);
+            console.log('Wrapper position:', wrapper.position);
+            console.log('Wrapper scale:', wrapper.scale);
             
             // Add axes helper to wrapper for visual reference
             const cubeAxes = new THREE.AxesHelper(2);
@@ -605,19 +624,25 @@
 
         // Window resize handler
         function onWindowResize() {
-            // Use proper DPI-aware resize function
-            resizeCanvasToDisplaySize();
+            // Update camera aspect ratio to match window
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
             
-            // Update render targets with new size
-            const pixelRatio = Math.min(window.devicePixelRatio, 2);
-            const width = canvas.clientWidth * pixelRatio;
-            const height = canvas.clientHeight * pixelRatio;
+            // Update renderer size
+            renderer.setSize(window.innerWidth, window.innerHeight);
             
-            mainRenderTarget.setSize(width, height);
-            backRenderTarget.setSize(width, height);
+            // Update render targets
+            mainRenderTarget.setSize(
+                window.innerWidth * Math.min(window.devicePixelRatio, 2),
+                window.innerHeight * Math.min(window.devicePixelRatio, 2)
+            );
+            backRenderTarget.setSize(
+                window.innerWidth * Math.min(window.devicePixelRatio, 2),
+                window.innerHeight * Math.min(window.devicePixelRatio, 2)
+            );
             
             // Update uniforms
-            uniforms.winResolution.value.set(canvas.clientWidth, canvas.clientHeight).multiplyScalar(pixelRatio);
+            uniforms.winResolution.value.set(window.innerWidth, window.innerHeight).multiplyScalar(Math.min(window.devicePixelRatio, 2));
         }
 
         // Animation loop

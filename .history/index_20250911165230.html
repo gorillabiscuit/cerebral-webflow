@@ -507,6 +507,21 @@
             // Create cube geometry
             const geometry = new THREE.BoxGeometry(2, 2, 2);
             
+            // 🔍 DEBUG: Check cube geometry centering
+            geometry.computeBoundingBox();
+            const cubeBox = geometry.boundingBox;
+            const cubeCenter = new THREE.Vector3();
+            cubeBox.getCenter(cubeCenter);
+            
+            console.log('=== GLASS CUBE CENTERING DEBUG ===');
+            console.log('Cube geometry bounding box:', cubeBox);
+            console.log('Cube geometry center:', cubeCenter);
+            console.log('Cube center values:', cubeCenter.x, cubeCenter.y, cubeCenter.z);
+            console.log('Is cube geometry centered?', 
+                Math.abs(cubeCenter.x) < 0.001, 
+                Math.abs(cubeCenter.y) < 0.001, 
+                Math.abs(cubeCenter.z) < 0.001
+            );
             
             // Create glass shader material
             const material = new THREE.ShaderMaterial({
@@ -536,6 +551,13 @@
             
             // Move cube forward towards camera by 2 units
             wrapper.position.set(0, 0, 2);
+            
+            // 🔍 DEBUG: Check final wrapper world position
+            const wrapperBox = new THREE.Box3().setFromObject(wrapper);
+            const wrapperCenter = wrapperBox.getCenter(new THREE.Vector3());
+            console.log('Glass cube wrapper center after transforms:', wrapperCenter);
+            console.log('Wrapper position:', wrapper.position);
+            console.log('Wrapper scale:', wrapper.scale);
             
             // Add axes helper to wrapper for visual reference
             const cubeAxes = new THREE.AxesHelper(2);
@@ -605,7 +627,7 @@
 
         // Window resize handler
         function onWindowResize() {
-            // Use proper DPI-aware resize function
+            // 🔧 FIX 1: Use proper DPI-aware resize function
             resizeCanvasToDisplaySize();
             
             // Update render targets with new size
@@ -618,6 +640,8 @@
             
             // Update uniforms
             uniforms.winResolution.value.set(canvas.clientWidth, canvas.clientHeight).multiplyScalar(pixelRatio);
+            
+            console.log('Window resized - render targets updated to:', width, 'x', height);
         }
 
         // Animation loop

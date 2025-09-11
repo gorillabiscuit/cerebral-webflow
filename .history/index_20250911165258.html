@@ -605,7 +605,7 @@
 
         // Window resize handler
         function onWindowResize() {
-            // Use proper DPI-aware resize function
+            // 🔧 FIX 1: Use proper DPI-aware resize function
             resizeCanvasToDisplaySize();
             
             // Update render targets with new size
@@ -618,6 +618,8 @@
             
             // Update uniforms
             uniforms.winResolution.value.set(canvas.clientWidth, canvas.clientHeight).multiplyScalar(pixelRatio);
+            
+            console.log('Window resized - render targets updated to:', width, 'x', height);
         }
 
         // Animation loop
