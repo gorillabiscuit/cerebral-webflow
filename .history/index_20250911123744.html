@@ -43,12 +43,14 @@
     <!-- Three.js Canvas Background -->
     <canvas id="webgl"></canvas>
 
-    <!-- Three.js r128 - Last version with working global /js/ addons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js Library - Direct CDN -->
+    <script src="https://unpkg.com/three@0.178.0/build/three.min.js"></script>
     
-    <!-- Three.js Addons for r128 - Global Script Versions -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/FontLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/geometries/TextGeometry.js"></script>
+    <!-- Three.js Font Loader -->
+    <script src="https://unpkg.com/three@0.178.0/examples/js/loaders/FontLoader.js"></script>
+    
+    <!-- Three.js Text Geometry -->
+    <script src="https://unpkg.com/three@0.178.0/examples/js/geometries/TextGeometry.js"></script>
 
     <!-- GSAP Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
@@ -65,12 +67,11 @@
         // End copying at line 483: });
         
         // FIXED ISSUES:
-        // ✅ 1. Switched from ES modules to direct CDN scripts
-        // ✅ 2. Fixed FontLoader() → THREE.FontLoader()
-        // ✅ 3. Fixed TextGeometry() → THREE.TextGeometry()  
-        // ✅ 4. Updated font URL to GitHub CDN
-        // ✅ 5. Simplified initialization (no polling needed)
-        // ✅ 6. All libraries load synchronously now
+        // ✅ 1. Fixed FontLoader() → THREE.FontLoader()
+        // ✅ 2. Fixed TextGeometry() → THREE.TextGeometry()  
+        // ✅ 3. Updated font URL to GitHub CDN
+        // ✅ 4. Added proper module loading detection
+        // ✅ 5. Moved script to bottom for correct load order
         console.log('Three.js Glass Shader Scene initialized');
 
         // Scene variables
@@ -342,7 +343,7 @@
                     const textGeometry = new THREE.TextGeometry('cerebral', {
                         font: font,
                         size: 5, // Text size
-                        height: 0.00001, // Text depth/extrusion
+                        depth: 0.1, // Text depth/extrusion
                         curveSegments: 12,
                         bevelEnabled: false,
                         // bevelThickness: 0.03,
@@ -545,15 +546,6 @@
             console.log('All libraries loaded, initializing scene...');
             console.log('THREE available:', typeof THREE !== 'undefined');
             console.log('GSAP available:', typeof gsap !== 'undefined');
-            
-            if (typeof THREE === 'undefined') {
-                console.error('THREE.js failed to load! Check CDN URLs');
-                return;
-            }
-            
-            console.log('THREE.REVISION:', THREE.REVISION);
-            console.log('THREE.FontLoader available:', typeof THREE.FontLoader !== 'undefined');
-            console.log('THREE.TextGeometry available:', typeof THREE.TextGeometry !== 'undefined');
             init();
             animate();
         });

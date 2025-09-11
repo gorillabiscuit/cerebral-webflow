@@ -43,12 +43,12 @@
     <!-- Three.js Canvas Background -->
     <canvas id="webgl"></canvas>
 
-    <!-- Three.js r128 - Last version with working global /js/ addons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js Library - r149 (last stable with build files) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
     
-    <!-- Three.js Addons for r128 - Global Script Versions -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/FontLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/geometries/TextGeometry.js"></script>
+    <!-- Three.js Addons for r149 -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/examples/js/geometries/TextGeometry.js"></script>
 
     <!-- GSAP Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
@@ -342,7 +342,7 @@
                     const textGeometry = new THREE.TextGeometry('cerebral', {
                         font: font,
                         size: 5, // Text size
-                        height: 0.00001, // Text depth/extrusion
+                        depth: 0.1, // Text depth/extrusion
                         curveSegments: 12,
                         bevelEnabled: false,
                         // bevelThickness: 0.03,
@@ -552,8 +552,6 @@
             }
             
             console.log('THREE.REVISION:', THREE.REVISION);
-            console.log('THREE.FontLoader available:', typeof THREE.FontLoader !== 'undefined');
-            console.log('THREE.TextGeometry available:', typeof THREE.TextGeometry !== 'undefined');
             init();
             animate();
         });

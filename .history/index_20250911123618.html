@@ -43,34 +43,35 @@
     <!-- Three.js Canvas Background -->
     <canvas id="webgl"></canvas>
 
-    <!-- Three.js r128 - Last version with working global /js/ addons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- ES Module Shims for CDN compatibility -->
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
     
-    <!-- Three.js Addons for r128 - Global Script Versions -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/FontLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/geometries/TextGeometry.js"></script>
+    <!-- Import Map for Three.js CDN -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.178.0/build/three.module.js",
+            "three/examples/jsm/loaders/FontLoader.js": "https://unpkg.com/three@0.178.0/examples/jsm/loaders/FontLoader.js",
+            "three/examples/jsm/geometries/TextGeometry.js": "https://unpkg.com/three@0.178.0/examples/jsm/geometries/TextGeometry.js"
+        }
+    }
+    </script>
 
     <!-- GSAP Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     
-</body>
-</html>
-
-<!-- MOVED TO BOTTOM FOR PROPER LOADING ORDER -->
     <!-- Main Application Script -->
-<!-- WEBFLOW CODE BLOCK: Copy everything between these script tags -->
-<script>
+    <!-- WEBFLOW CODE BLOCK: Copy everything between these script tags -->
+    <script>
         // Copy all JavaScript code from main.js here (excluding the import statements at the top)
         // Start copying from line 8: console.log('Three.js Glass Shader Scene initialized');
         // End copying at line 483: });
         
-        // FIXED ISSUES:
-        // ✅ 1. Switched from ES modules to direct CDN scripts
-        // ✅ 2. Fixed FontLoader() → THREE.FontLoader()
-        // ✅ 3. Fixed TextGeometry() → THREE.TextGeometry()  
-        // ✅ 4. Updated font URL to GitHub CDN
-        // ✅ 5. Simplified initialization (no polling needed)
-        // ✅ 6. All libraries load synchronously now
+        // INSTRUCTIONS:
+        // 1. Copy lines 8-483 from main.js 
+        // 2. Replace THREE.FontLoader() with THREE.FontLoader()
+        // 3. Replace THREE.TextGeometry with THREE.TextGeometry
+        // 4. Change font URL to: 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json'
         console.log('Three.js Glass Shader Scene initialized');
 
         // Scene variables
@@ -342,7 +343,7 @@
                     const textGeometry = new THREE.TextGeometry('cerebral', {
                         font: font,
                         size: 5, // Text size
-                        height: 0.00001, // Text depth/extrusion
+                        depth: 0.1, // Text depth/extrusion
                         curveSegments: 12,
                         bevelEnabled: false,
                         // bevelThickness: 0.03,
@@ -540,22 +541,23 @@
             renderer.render(scene, camera);
         }
 
-        // Initialize when everything is loaded
-        window.addEventListener('load', () => {
-            console.log('All libraries loaded, initializing scene...');
-            console.log('THREE available:', typeof THREE !== 'undefined');
-            console.log('GSAP available:', typeof gsap !== 'undefined');
-            
-            if (typeof THREE === 'undefined') {
-                console.error('THREE.js failed to load! Check CDN URLs');
-                return;
+        // Initialize when everything is loaded and modules are ready
+        function initializeWhenReady() {
+            if (typeof THREE !== 'undefined' && typeof gsap !== 'undefined') {
+                console.log('All libraries loaded, initializing scene...');
+                init();
+                animate();
+            } else {
+                console.log('Waiting for libraries to load...');
+                setTimeout(initializeWhenReady, 100);
             }
-            
-            console.log('THREE.REVISION:', THREE.REVISION);
-            console.log('THREE.FontLoader available:', typeof THREE.FontLoader !== 'undefined');
-            console.log('THREE.TextGeometry available:', typeof THREE.TextGeometry !== 'undefined');
-            init();
-            animate();
+        }
+
+        // Start initialization after page load
+        window.addEventListener('load', () => {
+            setTimeout(initializeWhenReady, 200);
         });
-</script>
-<!-- END WEBFLOW CODE BLOCK -->
+    </script>
+    <!-- END WEBFLOW CODE BLOCK -->
+</body>
+</html> 
