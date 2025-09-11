@@ -432,13 +432,12 @@ function animate() {
     camera.position.y = -scrollPos * 0.005;
     
     if (wrapper && isModelReady) {
-        // Use GSAP for smooth mouse-driven rotations with performance optimization
+        // Use GSAP for smooth mouse-driven rotations
         gsap.to(wrapper.rotation, {
             x: mouse.y * 0.5,
             y: mouse.x * 0.5,
-            duration: 0.8,
-            ease: "power2.out",
-            overwrite: "auto" // Prevent animation conflicts
+            duration: 1,
+            ease: "power2.out"
         });
         
         // Change text color based on hover state (similar to example)

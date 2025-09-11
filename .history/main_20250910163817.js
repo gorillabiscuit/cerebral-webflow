@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 console.log('Three.js Glass Shader Scene initialized');
 
@@ -300,7 +301,6 @@ function create3DText() {
             
             // Create text mesh
             const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-            textMesh.name = 'cerebralText'; // Add name for easy reference
             
             // Position text between plane (-5.0 z) and cube (0 z) 
             textMesh.position.set(centerOffsetX, centerOffsetY, -2.5 + centerOffsetZ);
@@ -428,26 +428,29 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
     
-    // Update camera position based on scroll (like Webflow example)
-    camera.position.y = -scrollPos * 0.005;
+    // Update controls
+    if (controls) {
+        controls.update();
+    }
     
     if (wrapper && isModelReady) {
-        // Use GSAP for smooth mouse-driven rotations with performance optimization
-        gsap.to(wrapper.rotation, {
-            x: mouse.y * 0.5,
-            y: mouse.x * 0.5,
-            duration: 0.8,
-            ease: "power2.out",
-            overwrite: "auto" // Prevent animation conflicts
-        });
+        const time = Date.now() * 0.001; // Convert to seconds
         
-        // Change text color based on hover state (similar to example)
-        const textMesh = scene.getObjectByName('cerebralText');
-        if (textMesh) {
-            textMesh.material.color = isHovering 
-                ? new THREE.Color(0.0, 1.0, 0.0)  // Green when hovering
-                : new THREE.Color(1.0, 0.0, 0.0); // Red normally
-        }
+        // Decay mouse influence over time
+        mouseInfluence.x *= 0.98;
+        mouseInfluence.y *= 0.98;
+        
+        // X-axis: varying rate with sine wave modulation + mouse Y influence
+        const xRate = 0.2 + Math.sin(time * 0.1) * 0.15;
+        wrapper.rotation.x += xRate * 0.02 + mouseInfluence.y * 0.05;
+        
+        // Y-axis: varying rate with cosine wave modulation + mouse X influence
+        const yRate = 0.3 + Math.cos(time * 0.08) * 0.2;
+        wrapper.rotation.y += yRate * 0.02 + mouseInfluence.x * 0.05;
+        
+        // Z-axis: varying rate with sine wave modulation at different frequency
+        const zRate = 0.15 + Math.sin(time * 0.12) * 0.1;
+        wrapper.rotation.z += zRate * 0.02;
     }
     
     // Glass refraction rendering

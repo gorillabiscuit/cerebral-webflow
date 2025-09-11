@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Glass Shader Scene</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main>
+        <section>
+            <div class="content">
+                <h1>Glass</h1>
+                <p>Advanced GLSL shaders creating realistic refraction effects through custom vertex and fragment shader implementation.</p>
+            </div>
+        </section>
+        
+        <section>
+            <div class="content">
+                <h1>Refraction</h1>
+                <p>Multi-pass rendering with dual render targets enables sophisticated light bending and realistic glass appearance.</p>
+            </div>
+        </section>
+        
+        <section>
+            <div class="content">
+                <h1>Typography</h1>
+                <p>3D text rendered with Outfit font using TextGeometry, precisely positioned between background plane and glass cube.</p>
+            </div>
+        </section>
+        
+        <section>
+            <div class="content">
+                <h1>Interactive</h1>
+                <p>Scroll and mouse interactions drive camera movement and object animations for an immersive WebGL experience.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Three.js Canvas Background -->
+    <canvas id="webgl"></canvas>
+
+    <!-- ES Module Shims for CDN compatibility -->
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+    
+    <!-- Import Map for Three.js CDN -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.178.0/build/three.module.js",
+            "three/examples/jsm/loaders/FontLoader.js": "https://unpkg.com/three@0.178.0/examples/jsm/loaders/FontLoader.js",
+            "three/examples/jsm/geometries/TextGeometry.js": "https://unpkg.com/three@0.178.0/examples/jsm/geometries/TextGeometry.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.178.0/examples/jsm/controls/OrbitControls.js"
+        }
+    }
+    </script>
+
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    
+    <!-- Main Application Script -->
+    <script type="module" src="main.js"></script>
+</body>
+</html> 
