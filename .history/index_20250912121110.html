@@ -53,6 +53,7 @@
 <!-- ============================================= -->
 <script>
         // Copy all JavaScript code from main.js here (excluding the import statements at the top)
+        // Start copying from line 8: console.log('Three.js Glass Shader Scene initialized');
         // End copying at line 483: });
         
         // FIXED ISSUES:
@@ -71,45 +72,20 @@
         const ENABLE_ORBIT_CONTROLS = true; // Set to false to disable camera controls
 
         // 🖱️ MOUSE INTERACTION TOGGLE: Enable/disable mouse-driven model rotation
-        const ENABLE_MOUSE_ROTATION = true; // Set to false to disable mouse rotation of bar model
-        
-        // 🎚️ MOUSE ROTATION STRENGTH: Control sensitivity of mouse-driven rotation
-        const MOUSE_ROTATION_STRENGTH = {
-            x: 0.5,     // Horizontal rotation strength (0.0 = no effect, 1.0 = full effect, 2.0 = double effect)
-            y: 0.5,     // Vertical rotation strength (0.0 = no effect, 1.0 = full effect, 2.0 = double effect)
-            duration: 0.8,  // Animation duration in seconds (lower = more responsive, higher = smoother)
-            ease: "power2.out",  // GSAP easing function ("power1.out", "power2.out", "power3.out", "elastic.out", "back.out")
-            // Rotation limits (in radians)
-            limits: {
-                x: {
-                    min: degToRad(-20),  // Maximum rotation up (negative Y mouse movement)
-                    max: degToRad(20)    // Maximum rotation down (positive Y mouse movement)
-                },
-                y: {
-                    min: degToRad(-5),  // Maximum rotation left (negative X mouse movement)
-                    max: degToRad(15)    // Maximum rotation right (positive X mouse movement)
-                }
-            }
-        };
+        const ENABLE_MOUSE_ROTATION = false; // Set to false to disable mouse rotation of bar model
 
         // 💡 EMISSIVE TOGGLE: Switch between colored and white emissive materials
         const USE_WHITE_EMISSIVE = true; // Set to true for white emissive, false for colored
-        
-        // 🔆 WHITE EMISSIVE INTENSITY: Control brightness of white emissive materials
-        const WHITE_EMISSIVE_INTENSITY = 1; // Adjust brightness (0.0 = off, 1.0 = normal, 2.0+ = brighter)
-        
 
         // 🎛️ LIGHTING TOGGLES: Enable/disable individual lights
         const LIGHTING_CONTROLS = {
-            ambientLight: true,         // Base illumination (needed to see emissive properly)
+            ambientLight: false,        // Base illumination
             mainDirectionalLight: false, // Primary sun-like light
             fillLight: false,           // Secondary fill light
             rimLight: false,            // Edge highlighting
             pointLight: false,          // Dynamic highlights
             emissivePlanes: true,       // Colored/white emissive planes
-            emissivePlanesVisibleToCamera: false,  // Make emissive planes visible to camera (false = only in reflections)
-            emissivePlanesInReflections: false,    // Include emissive planes in glass reflections (false = completely hidden)
-            backgroundPlane: false      // Show/hide the main background plane
+            emissivePlanesVisibleToCamera: true  // Make emissive planes visible to camera (false = only in reflections)
         };
 
         // 🎛️ BAR MODEL CONTROLS: Easy adjustment of model properties
@@ -123,8 +99,7 @@
                 y: degToRad(-6.8), 
                 z: degToRad(-10.687),
                 order: 'YXZ' // Try different rotation orders: 'XYZ', 'YXZ', 'ZXY', 'XZY', 'YZX', 'ZYX'
-             },
-            showAxesHelper: false           // Show/hide XYZ axes helper
+             }
         };
 
         // 📷 CAMERA CONTROLS: Easy adjustment of camera position
@@ -150,7 +125,7 @@
         const COLORED_PLANES = {
             green: {
                 size: { width: 2, height: 16 },
-                position: { x: -14, y: 0, z: -5.0 },
+                position: { x: -11, y: 0, z: -5.0 },
                 rotation: { x: 0, y: 0, z: 0 }, // in radians
                 color: 0x00ff00,        // Green base color
                 emissive: 0x00ff00,     // Green emissive
@@ -166,7 +141,7 @@
             },
             blue: {
                 size: { width: 3, height: 20 },
-                position: { x: 14, y: 0, z: -10.0 },
+                position: { x: 8, y: 0, z: -10.0 },
                 rotation: { x: 0, y: 0, z: 0 }, // in radians
                 color: 0x0000ff,        // Blue base color
                 emissive: 0x0000ff,     // Blue emissive
@@ -179,16 +154,6 @@
                 color: 0x121212,        // Dark gray base color
                 emissive: 0x000000,     // No emissive (pure material color)
                 emissiveIntensity: 0.0
-            },
-            roundedRed: {
-                size: { width: 26.5, height: 2.75 },
-            position: { x: 0, y: -1.1, z: -5 }, // Behind colored planes
-            rotation: { x: degToRad(0), y: degToRad(0), z: degToRad(-10.1) }, // in radians
-                cornerRadius: 1.5,      // Corner rounding (0 = square, higher = more rounded)
-                cornerSegments: 12,     // Smoothness of corners (higher = smoother)
-                color: 0xedece6,        // Red base color
-                emissive: 0xff0000,     // Red emissive
-                emissiveIntensity: 1.0
             }
         };
 
@@ -196,20 +161,20 @@
         const GLASS_SHADER = {
             // Index of Refraction values for chromatic aberration
             ior: {
-                red: 1.0,
-                yellow: 1.0,
-                green: 1.0,
-                cyan: 1.0,
-                blue: 1.0,
-                purple: 1.0
+                red: 1.05,
+                yellow: 1.05,
+                green: 1.05,
+                cyan: 1.05,
+                blue: 1.05,
+                purple: 1.05
             },
             // Visual effects
-            saturation: 1.0115,
-            chromaticAberration: 0.05,
-            refractPower: 0.15,
-            fresnelPower: 50.0,
-            shininess: 10.0,
-            diffuseness: 0.5,
+            saturation: 1.0215,
+            chromaticAberration: 0.14,
+            refractPower: 0.01,
+            fresnelPower: 12.0,
+            shininess: 15.0,
+            diffuseness: 0.2,
             // Lighting controls
             light: { 
                 direction: { x: -1.0, y: 1.0, z: 1.0 },  // Light direction vector
@@ -221,22 +186,14 @@
 
         // Scene variables
         let scene, camera, renderer, canvas;
-        let barModel;
+        let barModel; // Changed from mesh, wrapper to barModel
         let isModelReady = false;
         let mainRenderTarget, backRenderTarget;
         let uniforms;
+        let mouseInfluence = { x: 0, y: 0 };
+        let lastMousePos = { x: 0, y: 0 };
         let mouse = { x: 0, y: 0 };
         let controls;
-        
-        // Store base rotation separately from mouse-driven rotation
-        let baseRotation = { x: 0, y: 0, z: 0 };
-        
-        // Mouse inactivity tracking for auto-reset
-        let lastMouseMoveTime = 0;
-        let mouseInactivityTimeout = null;
-        let isResettingRotation = false; // Flag to prevent mouse animation during reset
-        let hasMouseMoved = false; // Flag to track if mouse has moved since reset
-        const MOUSE_RESET_DELAY = 1000; // 1 second in milliseconds
 
         // Shader code
         const vertexShader = `
@@ -517,145 +474,75 @@
             return deg * (Math.PI / 180);
         }
 
-        // Reset model to base rotation when mouse is inactive
-        function resetModelRotation() {
-            if (barModel && isModelReady) {
-                isResettingRotation = true; // Block mouse animation
-                hasMouseMoved = false; // Require new mouse movement to re-enable animation
-                
-                gsap.to(barModel.rotation, {
-                    x: baseRotation.x,
-                    y: baseRotation.y,
-                    duration: MOUSE_ROTATION_STRENGTH.duration,
-                    ease: MOUSE_ROTATION_STRENGTH.ease,
-                    overwrite: "auto",
-                    onComplete: () => {
-                        isResettingRotation = false; // Re-enable mouse animation
-                        // Note: hasMouseMoved stays false until actual mouse movement
-                    }
-                });
-            }
-        }
-
-        // Create rounded rectangle geometry
-        function createRoundedRectangleGeometry(width, height, radius, segments = 8) {
-            const shape = new THREE.Shape();
-            const x = -width / 2;
-            const y = -height / 2;
-            
-            // Start from bottom-left corner, moving clockwise
-            shape.moveTo(x + radius, y);
-            
-            // Bottom edge
-            shape.lineTo(x + width - radius, y);
-            
-            // Bottom-right corner
-            shape.quadraticCurveTo(x + width, y, x + width, y + radius);
-            
-            // Right edge
-            shape.lineTo(x + width, y + height - radius);
-            
-            // Top-right corner
-            shape.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            
-            // Top edge
-            shape.lineTo(x + radius, y + height);
-            
-            // Top-left corner
-            shape.quadraticCurveTo(x, y + height, x, y + height - radius);
-            
-            // Left edge
-            shape.lineTo(x, y + radius);
-            
-            // Bottom-left corner
-            shape.quadraticCurveTo(x, y, x + radius, y);
-            
-            return new THREE.ShapeGeometry(shape, segments);
-        }
-
         // Create background plane and colored emissive planes for refraction effects
         function createBackgroundGeometry() {
-            // Create main background plane (behind everything) - only if enabled
-            if (LIGHTING_CONTROLS.backgroundPlane) {
-                const backgroundGeometry = new THREE.PlaneGeometry(BACKGROUND_PLANE.size.width, BACKGROUND_PLANE.size.height);
-                const backgroundMaterial = new THREE.MeshBasicMaterial({ 
-                    color: BACKGROUND_PLANE.color, 
-                    side: THREE.DoubleSide 
-                });
-                const backgroundPlane = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-                backgroundPlane.position.set(BACKGROUND_PLANE.position.x, BACKGROUND_PLANE.position.y, BACKGROUND_PLANE.position.z);
-                backgroundPlane.rotation.set(BACKGROUND_PLANE.rotation.x, BACKGROUND_PLANE.rotation.y, BACKGROUND_PLANE.rotation.z);
-                scene.add(backgroundPlane);
-            }
+            // Create main background plane (behind everything)
+            const backgroundGeometry = new THREE.PlaneGeometry(BACKGROUND_PLANE.size.width, BACKGROUND_PLANE.size.height);
+            const backgroundMaterial = new THREE.MeshBasicMaterial({
+                color: BACKGROUND_PLANE.color,
+                side: THREE.DoubleSide
+            });
+            const backgroundPlane = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+            backgroundPlane.position.set(BACKGROUND_PLANE.position.x, BACKGROUND_PLANE.position.y, BACKGROUND_PLANE.position.z);
+            backgroundPlane.rotation.set(BACKGROUND_PLANE.rotation.x, BACKGROUND_PLANE.rotation.y, BACKGROUND_PLANE.rotation.z);
+            scene.add(backgroundPlane);
 
             // Create emissive planes only if enabled
             if (LIGHTING_CONTROLS.emissivePlanes) {
                 // Create green plane with toggle-able material
                 const greenGeometry = new THREE.PlaneGeometry(COLORED_PLANES.green.size.width, COLORED_PLANES.green.size.height);
-                const greenEmissiveColor = USE_WHITE_EMISSIVE ? 
-                    new THREE.Color(WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY) : 
-                    COLORED_PLANES.green.emissive;
                 const greenMaterial = new THREE.MeshBasicMaterial({
-                    color: USE_WHITE_EMISSIVE ? 0x000000 : COLORED_PLANES.green.color,
-                    emissive: greenEmissiveColor,
+                    color: USE_WHITE_EMISSIVE ? 0xffffff : COLORED_PLANES.green.color,
+                    emissive: USE_WHITE_EMISSIVE ? 0xffffff : COLORED_PLANES.green.emissive,
+                    emissiveIntensity: COLORED_PLANES.green.emissiveIntensity,
                     side: THREE.DoubleSide
                 });
                 const greenPlane = new THREE.Mesh(greenGeometry, greenMaterial);
                 greenPlane.position.set(COLORED_PLANES.green.position.x, COLORED_PLANES.green.position.y, COLORED_PLANES.green.position.z);
                 greenPlane.rotation.set(COLORED_PLANES.green.rotation.x, COLORED_PLANES.green.rotation.y, COLORED_PLANES.green.rotation.z);
-                // Set layer based on visibility toggles
-                if (!LIGHTING_CONTROLS.emissivePlanesInReflections) {
-                    greenPlane.layers.set(2); // Completely hidden layer (invisible to camera AND reflections)
-                } else if (LIGHTING_CONTROLS.emissivePlanesVisibleToCamera) {
-                    greenPlane.layers.set(0); // Default layer (visible to camera and reflections)
+                // Set layer based on visibility toggle
+                if (LIGHTING_CONTROLS.emissivePlanesVisibleToCamera) {
+                    greenPlane.layers.set(0); // Default layer (visible to camera)
                 } else {
-                    greenPlane.layers.set(1); // Reflection-only layer (invisible to camera, visible in reflections)
+                    greenPlane.layers.set(1); // Reflection-only layer (invisible to camera)
                 }
                 scene.add(greenPlane);
 
                 // Create red plane with toggle-able material
                 const redGeometry = new THREE.PlaneGeometry(COLORED_PLANES.red.size.width, COLORED_PLANES.red.size.height);
-                const redEmissiveColor = USE_WHITE_EMISSIVE ? 
-                    new THREE.Color(WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY) : 
-                    COLORED_PLANES.red.emissive;
                 const redMaterial = new THREE.MeshBasicMaterial({
-                    color: USE_WHITE_EMISSIVE ? 0x000000 : COLORED_PLANES.red.color,
-                    emissive: redEmissiveColor,
+                    color: USE_WHITE_EMISSIVE ? 0xffffff : COLORED_PLANES.red.color,
+                    emissive: USE_WHITE_EMISSIVE ? 0xffffff : COLORED_PLANES.red.emissive,
+                    emissiveIntensity: COLORED_PLANES.red.emissiveIntensity,
                     side: THREE.DoubleSide
                 });
                 const redPlane = new THREE.Mesh(redGeometry, redMaterial);
                 redPlane.position.set(COLORED_PLANES.red.position.x, COLORED_PLANES.red.position.y, COLORED_PLANES.red.position.z);
                 redPlane.rotation.set(COLORED_PLANES.red.rotation.x, COLORED_PLANES.red.rotation.y, COLORED_PLANES.red.rotation.z);
-                // Set layer based on visibility toggles
-                if (!LIGHTING_CONTROLS.emissivePlanesInReflections) {
-                    redPlane.layers.set(2); // Completely hidden layer (invisible to camera AND reflections)
-                } else if (LIGHTING_CONTROLS.emissivePlanesVisibleToCamera) {
-                    redPlane.layers.set(0); // Default layer (visible to camera and reflections)
+                // Set layer based on visibility toggle
+                if (LIGHTING_CONTROLS.emissivePlanesVisibleToCamera) {
+                    redPlane.layers.set(0); // Default layer (visible to camera)
                 } else {
-                    redPlane.layers.set(1); // Reflection-only layer (invisible to camera, visible in reflections)
+                    redPlane.layers.set(1); // Reflection-only layer (invisible to camera)
                 }
                 scene.add(redPlane);
 
                 // Create blue plane with toggle-able material
                 const blueGeometry = new THREE.PlaneGeometry(COLORED_PLANES.blue.size.width, COLORED_PLANES.blue.size.height);
-                const blueEmissiveColor = USE_WHITE_EMISSIVE ? 
-                    new THREE.Color(WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY) : 
-                    COLORED_PLANES.blue.emissive;
                 const blueMaterial = new THREE.MeshBasicMaterial({
-                    color: USE_WHITE_EMISSIVE ? 0x000000 : COLORED_PLANES.blue.color,
-                    emissive: blueEmissiveColor,
+                    color: USE_WHITE_EMISSIVE ? 0xffffff : COLORED_PLANES.blue.color,
+                    emissive: USE_WHITE_EMISSIVE ? 0xffffff : COLORED_PLANES.blue.emissive,
+                    emissiveIntensity: COLORED_PLANES.blue.emissiveIntensity,
                     side: THREE.DoubleSide
                 });
                 const bluePlane = new THREE.Mesh(blueGeometry, blueMaterial);
                 bluePlane.position.set(COLORED_PLANES.blue.position.x, COLORED_PLANES.blue.position.y, COLORED_PLANES.blue.position.z);
                 bluePlane.rotation.set(COLORED_PLANES.blue.rotation.x, COLORED_PLANES.blue.rotation.y, COLORED_PLANES.blue.rotation.z);
-                // Set layer based on visibility toggles
-                if (!LIGHTING_CONTROLS.emissivePlanesInReflections) {
-                    bluePlane.layers.set(2); // Completely hidden layer (invisible to camera AND reflections)
-                } else if (LIGHTING_CONTROLS.emissivePlanesVisibleToCamera) {
-                    bluePlane.layers.set(0); // Default layer (visible to camera and reflections)
+                // Set layer based on visibility toggle
+                if (LIGHTING_CONTROLS.emissivePlanesVisibleToCamera) {
+                    bluePlane.layers.set(0); // Default layer (visible to camera)
                 } else {
-                    bluePlane.layers.set(1); // Reflection-only layer (invisible to camera, visible in reflections)
+                    bluePlane.layers.set(1); // Reflection-only layer (invisible to camera)
                 }
                 scene.add(bluePlane);
 
@@ -672,26 +559,6 @@
                 topDarkPlane.rotation.set(COLORED_PLANES.topDark.rotation.x, COLORED_PLANES.topDark.rotation.y, COLORED_PLANES.topDark.rotation.z);
                 scene.add(topDarkPlane);
             }
-
-            // Create rounded red plane for testing (always visible, independent of emissive planes toggle)
-            const roundedRedGeometry = createRoundedRectangleGeometry(
-                COLORED_PLANES.roundedRed.size.width, 
-                COLORED_PLANES.roundedRed.size.height, 
-                COLORED_PLANES.roundedRed.cornerRadius, 
-                COLORED_PLANES.roundedRed.cornerSegments
-            );
-            const roundedRedMaterial = new THREE.MeshBasicMaterial({
-                color: COLORED_PLANES.roundedRed.color,        // Always use configured color
-                emissive: COLORED_PLANES.roundedRed.emissive,  // Always use configured emissive
-                emissiveIntensity: COLORED_PLANES.roundedRed.emissiveIntensity,
-                side: THREE.DoubleSide
-            });
-            const roundedRedPlane = new THREE.Mesh(roundedRedGeometry, roundedRedMaterial);
-            roundedRedPlane.position.set(COLORED_PLANES.roundedRed.position.x, COLORED_PLANES.roundedRed.position.y, COLORED_PLANES.roundedRed.position.z);
-            roundedRedPlane.rotation.set(COLORED_PLANES.roundedRed.rotation.x, COLORED_PLANES.roundedRed.rotation.y, COLORED_PLANES.roundedRed.rotation.z);
-            // Always visible to camera (not affected by any toggles)
-            roundedRedPlane.layers.set(0); // Always on default layer
-            scene.add(roundedRedPlane);
         }
 
         // Create 3D text
@@ -795,22 +662,16 @@
                         }
                     });
                     
-                    // Add XYZ axes helper at origin (model should now be truly centered here) - only if enabled
-                    if (BAR_MODEL.showAxesHelper) {
-                        const axesHelper = new THREE.AxesHelper(1);
-                        axesHelper.position.set(0, 0, 0);
-                        barModel.add(axesHelper);
-                    }
+                    // Add XYZ axes helper at origin (model should now be truly centered here)
+                    const axesHelper = new THREE.AxesHelper(1);
+                    axesHelper.position.set(0, 0, 0);
+                    barModel.add(axesHelper);
                     
                     // Apply model transformations normally - geometry is now truly centered
                     barModel.scale.set(BAR_MODEL.scale.x, BAR_MODEL.scale.y, BAR_MODEL.scale.z);
                     barModel.position.set(BAR_MODEL.position.x, BAR_MODEL.position.y, BAR_MODEL.position.z);
                     
-                    // 🔧 IMPROVED ROTATION: Store base rotation and set initial rotation
-                    baseRotation.x = BAR_MODEL.rotation.x;
-                    baseRotation.y = BAR_MODEL.rotation.y;
-                    baseRotation.z = BAR_MODEL.rotation.z;
-                    
+                    // 🔧 IMPROVED ROTATION: Set rotation order first, then apply rotations
                     barModel.rotation.order = BAR_MODEL.rotation.order;
                     barModel.rotation.set(BAR_MODEL.rotation.x, BAR_MODEL.rotation.y, BAR_MODEL.rotation.z);
                     
@@ -841,6 +702,9 @@
                     // Set model ready flag
                     isModelReady = true;
                     console.log('Bar model ready for rendering');
+                    
+                    // Optional: Add the model to the wrapper for mouse interactions
+                    // wrapper.add(barModel);
                 },
                 (progress) => {
                     console.log('Loading bar model:', (progress.loaded / progress.total * 100) + '%');
@@ -879,31 +743,28 @@
 
         // Add event listeners
         function addEventListeners() {
-            // Mouse move handler for model rotation
+            // Mouse move handler for cube rotation
             window.addEventListener('mousemove', (e) => {
-                // Update mouse position for model rotation
+                // Update mouse position for cube rotation
                 mouse.x = e.clientX / window.innerWidth - 0.5;
                 mouse.y = e.clientY / window.innerHeight - 0.5;
                 
-                // Mark that mouse has moved (enables animation)
-                hasMouseMoved = true;
-                
-                // Track mouse movement for auto-reset
-                lastMouseMoveTime = Date.now();
-                
-                // Cancel any ongoing reset
-                if (isResettingRotation) {
-                    isResettingRotation = false;
+                // Initialize lastMousePos if it hasn't been set yet
+                if (lastMousePos.x === 0 && lastMousePos.y === 0) {
+                    lastMousePos.x = e.clientX;
+                    lastMousePos.y = e.clientY;
+                    return;
                 }
                 
-                // Clear existing timeout and set new one
-                if (mouseInactivityTimeout) {
-                    clearTimeout(mouseInactivityTimeout);
-                }
+                const deltaX = e.clientX - lastMousePos.x;
+                const deltaY = e.clientY - lastMousePos.y;
                 
-                mouseInactivityTimeout = setTimeout(() => {
-                    resetModelRotation();
-                }, MOUSE_RESET_DELAY);
+                // Add mouse movement to influence (normalized to screen size)
+                mouseInfluence.x += deltaX / window.innerWidth * 2.0;
+                mouseInfluence.y += deltaY / window.innerHeight * 2.0;
+                
+                lastMousePos.x = e.clientX;
+                lastMousePos.y = e.clientY;
             });
             
             // Window resize handler
@@ -936,59 +797,22 @@
                 controls.update();
             }
             
-            // Rotate bar model based on mouse position using GSAP (with toggle and limits)
-            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION && !isResettingRotation && hasMouseMoved) {
-                // Calculate mouse offset within limits (direct mapping, no strength multiplication)
-                const mouseOffsetX = THREE.MathUtils.clamp(
-                    THREE.MathUtils.mapLinear(
-                        mouse.y, 
-                        -0.5, 0.5,  // Mouse range (-0.5 to +0.5)
-                        MOUSE_ROTATION_STRENGTH.limits.x.min, MOUSE_ROTATION_STRENGTH.limits.x.max
-                    ),
-                    MOUSE_ROTATION_STRENGTH.limits.x.min,
-                    MOUSE_ROTATION_STRENGTH.limits.x.max
-                );
-                
-                const mouseOffsetY = THREE.MathUtils.clamp(
-                    THREE.MathUtils.mapLinear(
-                        mouse.x,
-                        -0.5, 0.5,  // Mouse range (-0.5 to +0.5)  
-                        MOUSE_ROTATION_STRENGTH.limits.y.min, MOUSE_ROTATION_STRENGTH.limits.y.max
-                    ),
-                    MOUSE_ROTATION_STRENGTH.limits.y.min,
-                    MOUSE_ROTATION_STRENGTH.limits.y.max
-                );
-                
-                // Apply strength multiplier to the offset
-                const scaledOffsetX = mouseOffsetX * MOUSE_ROTATION_STRENGTH.y;
-                const scaledOffsetY = mouseOffsetY * MOUSE_ROTATION_STRENGTH.x;
-                
-                // Final rotation = base rotation + mouse offset
-                const finalRotationX = baseRotation.x + scaledOffsetX;
-                const finalRotationY = baseRotation.y + scaledOffsetY;
-                
+            // Rotate bar model based on mouse position using GSAP (with toggle)
+            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION) {
                 gsap.to(barModel.rotation, {
-                    x: finalRotationX,
-                    y: finalRotationY,
-                    duration: MOUSE_ROTATION_STRENGTH.duration,
-                    ease: MOUSE_ROTATION_STRENGTH.ease,
+                    x: mouse.y * 0.5,
+                    y: mouse.x * 0.5,
+                    duration: 0.8,
+                    ease: "power2.out",
                     overwrite: "auto"
                 });
             }
             
             // Glass refraction rendering with two-pass system
             if (barModel && isModelReady) {
-                // Temporarily enable layers for reflection rendering (exclude completely hidden layer 2)
+                // Temporarily enable all layers for reflection rendering
                 const originalLayers = camera.layers.mask;
-                if (LIGHTING_CONTROLS.emissivePlanesInReflections) {
-                    camera.layers.enableAll(); // Enable all layers for reflections
-                } else {
-                    // Enable layers 0 and 1, but exclude layer 2 (completely hidden)
-                    camera.layers.disableAll();
-                    camera.layers.enable(0); // Default objects
-                    camera.layers.enable(1); // Reflection-only objects
-                    // Layer 2 (completely hidden) remains disabled
-                }
+                camera.layers.enableAll(); // Enable all layers for reflections
                 
                 // First pass: Hide glass model and render background to back target
                 barModel.visible = false;
@@ -1018,12 +842,9 @@
                 });
                 
                 renderer.setRenderTarget(null);
-                
-                // Restore original camera layers for final render
-                camera.layers.mask = originalLayers;
             }
             
-            // Final render to screen (respects layer visibility)
+            // Final render to screen
             renderer.render(scene, camera);
         }
 

@@ -521,7 +521,10 @@
         function resetModelRotation() {
             if (barModel && isModelReady) {
                 isResettingRotation = true; // Block mouse animation
-                hasMouseMoved = false; // Require new mouse movement to re-enable animation
+                
+                // Clear mouse position to prevent re-application after reset
+                mouse.x = 0;
+                mouse.y = 0;
                 
                 gsap.to(barModel.rotation, {
                     x: baseRotation.x,
@@ -531,7 +534,6 @@
                     overwrite: "auto",
                     onComplete: () => {
                         isResettingRotation = false; // Re-enable mouse animation
-                        // Note: hasMouseMoved stays false until actual mouse movement
                     }
                 });
             }
@@ -885,9 +887,6 @@
                 mouse.x = e.clientX / window.innerWidth - 0.5;
                 mouse.y = e.clientY / window.innerHeight - 0.5;
                 
-                // Mark that mouse has moved (enables animation)
-                hasMouseMoved = true;
-                
                 // Track mouse movement for auto-reset
                 lastMouseMoveTime = Date.now();
                 
@@ -937,7 +936,7 @@
             }
             
             // Rotate bar model based on mouse position using GSAP (with toggle and limits)
-            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION && !isResettingRotation && hasMouseMoved) {
+            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION && !isResettingRotation) {
                 // Calculate mouse offset within limits (direct mapping, no strength multiplication)
                 const mouseOffsetX = THREE.MathUtils.clamp(
                     THREE.MathUtils.mapLinear(

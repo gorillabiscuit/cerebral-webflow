@@ -86,8 +86,8 @@
                     max: degToRad(20)    // Maximum rotation down (positive Y mouse movement)
                 },
                 y: {
-                    min: degToRad(-5),  // Maximum rotation left (negative X mouse movement)
-                    max: degToRad(15)    // Maximum rotation right (positive X mouse movement)
+                    min: degToRad(-10),  // Maximum rotation left (negative X mouse movement)
+                    max: degToRad(10)    // Maximum rotation right (positive X mouse movement)
                 }
             }
         };
@@ -234,8 +234,6 @@
         // Mouse inactivity tracking for auto-reset
         let lastMouseMoveTime = 0;
         let mouseInactivityTimeout = null;
-        let isResettingRotation = false; // Flag to prevent mouse animation during reset
-        let hasMouseMoved = false; // Flag to track if mouse has moved since reset
         const MOUSE_RESET_DELAY = 1000; // 1 second in milliseconds
 
         // Shader code
@@ -520,19 +518,12 @@
         // Reset model to base rotation when mouse is inactive
         function resetModelRotation() {
             if (barModel && isModelReady) {
-                isResettingRotation = true; // Block mouse animation
-                hasMouseMoved = false; // Require new mouse movement to re-enable animation
-                
                 gsap.to(barModel.rotation, {
                     x: baseRotation.x,
                     y: baseRotation.y,
                     duration: MOUSE_ROTATION_STRENGTH.duration,
                     ease: MOUSE_ROTATION_STRENGTH.ease,
-                    overwrite: "auto",
-                    onComplete: () => {
-                        isResettingRotation = false; // Re-enable mouse animation
-                        // Note: hasMouseMoved stays false until actual mouse movement
-                    }
+                    overwrite: "auto"
                 });
             }
         }
@@ -884,26 +875,6 @@
                 // Update mouse position for model rotation
                 mouse.x = e.clientX / window.innerWidth - 0.5;
                 mouse.y = e.clientY / window.innerHeight - 0.5;
-                
-                // Mark that mouse has moved (enables animation)
-                hasMouseMoved = true;
-                
-                // Track mouse movement for auto-reset
-                lastMouseMoveTime = Date.now();
-                
-                // Cancel any ongoing reset
-                if (isResettingRotation) {
-                    isResettingRotation = false;
-                }
-                
-                // Clear existing timeout and set new one
-                if (mouseInactivityTimeout) {
-                    clearTimeout(mouseInactivityTimeout);
-                }
-                
-                mouseInactivityTimeout = setTimeout(() => {
-                    resetModelRotation();
-                }, MOUSE_RESET_DELAY);
             });
             
             // Window resize handler
@@ -937,7 +908,7 @@
             }
             
             // Rotate bar model based on mouse position using GSAP (with toggle and limits)
-            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION && !isResettingRotation && hasMouseMoved) {
+            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION) {
                 // Calculate mouse offset within limits (direct mapping, no strength multiplication)
                 const mouseOffsetX = THREE.MathUtils.clamp(
                     THREE.MathUtils.mapLinear(

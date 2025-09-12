@@ -53,6 +53,7 @@
 <!-- ============================================= -->
 <script>
         // Copy all JavaScript code from main.js here (excluding the import statements at the top)
+        // Start copying from line 8: console.log('Three.js Glass Shader Scene initialized');
         // End copying at line 483: });
         
         // FIXED ISSUES:
@@ -72,25 +73,6 @@
 
         // 🖱️ MOUSE INTERACTION TOGGLE: Enable/disable mouse-driven model rotation
         const ENABLE_MOUSE_ROTATION = true; // Set to false to disable mouse rotation of bar model
-        
-        // 🎚️ MOUSE ROTATION STRENGTH: Control sensitivity of mouse-driven rotation
-        const MOUSE_ROTATION_STRENGTH = {
-            x: 0.5,     // Horizontal rotation strength (0.0 = no effect, 1.0 = full effect, 2.0 = double effect)
-            y: 0.5,     // Vertical rotation strength (0.0 = no effect, 1.0 = full effect, 2.0 = double effect)
-            duration: 0.8,  // Animation duration in seconds (lower = more responsive, higher = smoother)
-            ease: "power2.out",  // GSAP easing function ("power1.out", "power2.out", "power3.out", "elastic.out", "back.out")
-            // Rotation limits (in radians)
-            limits: {
-                x: {
-                    min: degToRad(-20),  // Maximum rotation up (negative Y mouse movement)
-                    max: degToRad(20)    // Maximum rotation down (positive Y mouse movement)
-                },
-                y: {
-                    min: degToRad(-5),  // Maximum rotation left (negative X mouse movement)
-                    max: degToRad(15)    // Maximum rotation right (positive X mouse movement)
-                }
-            }
-        };
 
         // 💡 EMISSIVE TOGGLE: Switch between colored and white emissive materials
         const USE_WHITE_EMISSIVE = true; // Set to true for white emissive, false for colored
@@ -181,9 +163,9 @@
                 emissiveIntensity: 0.0
             },
             roundedRed: {
-                size: { width: 26.5, height: 2.75 },
-            position: { x: 0, y: -1.1, z: -5 }, // Behind colored planes
-            rotation: { x: degToRad(0), y: degToRad(0), z: degToRad(-10.1) }, // in radians
+                size: { width: 30, height: 3 },
+            position: { x: 0, y: -1.25, z: -14 }, // Behind colored planes
+            rotation: { x: degToRad(0), y: degToRad(0), z: degToRad(-10.8) }, // in radians
                 cornerRadius: 1.5,      // Corner rounding (0 = square, higher = more rounded)
                 cornerSegments: 12,     // Smoothness of corners (higher = smoother)
                 color: 0xedece6,        // Red base color
@@ -204,12 +186,12 @@
                 purple: 1.0
             },
             // Visual effects
-            saturation: 1.0115,
-            chromaticAberration: 0.05,
-            refractPower: 0.15,
-            fresnelPower: 50.0,
-            shininess: 10.0,
-            diffuseness: 0.5,
+            saturation: 1.00000215,
+            chromaticAberration: 0.14,
+            refractPower: 0.01,
+            fresnelPower: 12.0,
+            shininess: 15.0,
+            diffuseness: 0.2,
             // Lighting controls
             light: { 
                 direction: { x: -1.0, y: 1.0, z: 1.0 },  // Light direction vector
@@ -221,22 +203,14 @@
 
         // Scene variables
         let scene, camera, renderer, canvas;
-        let barModel;
+        let barModel; // Changed from mesh, wrapper to barModel
         let isModelReady = false;
         let mainRenderTarget, backRenderTarget;
         let uniforms;
+        let mouseInfluence = { x: 0, y: 0 };
+        let lastMousePos = { x: 0, y: 0 };
         let mouse = { x: 0, y: 0 };
         let controls;
-        
-        // Store base rotation separately from mouse-driven rotation
-        let baseRotation = { x: 0, y: 0, z: 0 };
-        
-        // Mouse inactivity tracking for auto-reset
-        let lastMouseMoveTime = 0;
-        let mouseInactivityTimeout = null;
-        let isResettingRotation = false; // Flag to prevent mouse animation during reset
-        let hasMouseMoved = false; // Flag to track if mouse has moved since reset
-        const MOUSE_RESET_DELAY = 1000; // 1 second in milliseconds
 
         // Shader code
         const vertexShader = `
@@ -517,26 +491,6 @@
             return deg * (Math.PI / 180);
         }
 
-        // Reset model to base rotation when mouse is inactive
-        function resetModelRotation() {
-            if (barModel && isModelReady) {
-                isResettingRotation = true; // Block mouse animation
-                hasMouseMoved = false; // Require new mouse movement to re-enable animation
-                
-                gsap.to(barModel.rotation, {
-                    x: baseRotation.x,
-                    y: baseRotation.y,
-                    duration: MOUSE_ROTATION_STRENGTH.duration,
-                    ease: MOUSE_ROTATION_STRENGTH.ease,
-                    overwrite: "auto",
-                    onComplete: () => {
-                        isResettingRotation = false; // Re-enable mouse animation
-                        // Note: hasMouseMoved stays false until actual mouse movement
-                    }
-                });
-            }
-        }
-
         // Create rounded rectangle geometry
         function createRoundedRectangleGeometry(width, height, radius, segments = 8) {
             const shape = new THREE.Shape();
@@ -806,11 +760,7 @@
                     barModel.scale.set(BAR_MODEL.scale.x, BAR_MODEL.scale.y, BAR_MODEL.scale.z);
                     barModel.position.set(BAR_MODEL.position.x, BAR_MODEL.position.y, BAR_MODEL.position.z);
                     
-                    // 🔧 IMPROVED ROTATION: Store base rotation and set initial rotation
-                    baseRotation.x = BAR_MODEL.rotation.x;
-                    baseRotation.y = BAR_MODEL.rotation.y;
-                    baseRotation.z = BAR_MODEL.rotation.z;
-                    
+                    // 🔧 IMPROVED ROTATION: Set rotation order first, then apply rotations
                     barModel.rotation.order = BAR_MODEL.rotation.order;
                     barModel.rotation.set(BAR_MODEL.rotation.x, BAR_MODEL.rotation.y, BAR_MODEL.rotation.z);
                     
@@ -841,6 +791,9 @@
                     // Set model ready flag
                     isModelReady = true;
                     console.log('Bar model ready for rendering');
+                    
+                    // Optional: Add the model to the wrapper for mouse interactions
+                    // wrapper.add(barModel);
                 },
                 (progress) => {
                     console.log('Loading bar model:', (progress.loaded / progress.total * 100) + '%');
@@ -879,31 +832,28 @@
 
         // Add event listeners
         function addEventListeners() {
-            // Mouse move handler for model rotation
+            // Mouse move handler for cube rotation
             window.addEventListener('mousemove', (e) => {
-                // Update mouse position for model rotation
+                // Update mouse position for cube rotation
                 mouse.x = e.clientX / window.innerWidth - 0.5;
                 mouse.y = e.clientY / window.innerHeight - 0.5;
                 
-                // Mark that mouse has moved (enables animation)
-                hasMouseMoved = true;
-                
-                // Track mouse movement for auto-reset
-                lastMouseMoveTime = Date.now();
-                
-                // Cancel any ongoing reset
-                if (isResettingRotation) {
-                    isResettingRotation = false;
+                // Initialize lastMousePos if it hasn't been set yet
+                if (lastMousePos.x === 0 && lastMousePos.y === 0) {
+                    lastMousePos.x = e.clientX;
+                    lastMousePos.y = e.clientY;
+                    return;
                 }
                 
-                // Clear existing timeout and set new one
-                if (mouseInactivityTimeout) {
-                    clearTimeout(mouseInactivityTimeout);
-                }
+                const deltaX = e.clientX - lastMousePos.x;
+                const deltaY = e.clientY - lastMousePos.y;
                 
-                mouseInactivityTimeout = setTimeout(() => {
-                    resetModelRotation();
-                }, MOUSE_RESET_DELAY);
+                // Add mouse movement to influence (normalized to screen size)
+                mouseInfluence.x += deltaX / window.innerWidth * 2.0;
+                mouseInfluence.y += deltaY / window.innerHeight * 2.0;
+                
+                lastMousePos.x = e.clientX;
+                lastMousePos.y = e.clientY;
             });
             
             // Window resize handler
@@ -936,42 +886,13 @@
                 controls.update();
             }
             
-            // Rotate bar model based on mouse position using GSAP (with toggle and limits)
-            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION && !isResettingRotation && hasMouseMoved) {
-                // Calculate mouse offset within limits (direct mapping, no strength multiplication)
-                const mouseOffsetX = THREE.MathUtils.clamp(
-                    THREE.MathUtils.mapLinear(
-                        mouse.y, 
-                        -0.5, 0.5,  // Mouse range (-0.5 to +0.5)
-                        MOUSE_ROTATION_STRENGTH.limits.x.min, MOUSE_ROTATION_STRENGTH.limits.x.max
-                    ),
-                    MOUSE_ROTATION_STRENGTH.limits.x.min,
-                    MOUSE_ROTATION_STRENGTH.limits.x.max
-                );
-                
-                const mouseOffsetY = THREE.MathUtils.clamp(
-                    THREE.MathUtils.mapLinear(
-                        mouse.x,
-                        -0.5, 0.5,  // Mouse range (-0.5 to +0.5)  
-                        MOUSE_ROTATION_STRENGTH.limits.y.min, MOUSE_ROTATION_STRENGTH.limits.y.max
-                    ),
-                    MOUSE_ROTATION_STRENGTH.limits.y.min,
-                    MOUSE_ROTATION_STRENGTH.limits.y.max
-                );
-                
-                // Apply strength multiplier to the offset
-                const scaledOffsetX = mouseOffsetX * MOUSE_ROTATION_STRENGTH.y;
-                const scaledOffsetY = mouseOffsetY * MOUSE_ROTATION_STRENGTH.x;
-                
-                // Final rotation = base rotation + mouse offset
-                const finalRotationX = baseRotation.x + scaledOffsetX;
-                const finalRotationY = baseRotation.y + scaledOffsetY;
-                
+            // Rotate bar model based on mouse position using GSAP (with toggle)
+            if (barModel && isModelReady && ENABLE_MOUSE_ROTATION) {
                 gsap.to(barModel.rotation, {
-                    x: finalRotationX,
-                    y: finalRotationY,
-                    duration: MOUSE_ROTATION_STRENGTH.duration,
-                    ease: MOUSE_ROTATION_STRENGTH.ease,
+                    x: mouse.y * 0.5,
+                    y: mouse.x * 0.5,
+                    duration: 0.8,
+                    ease: "power2.out",
                     overwrite: "auto"
                 });
             }
