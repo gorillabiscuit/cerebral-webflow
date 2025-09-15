@@ -748,8 +748,9 @@
         // Create 3D text
         function create3DText() {
             const loader = new THREE.FontLoader();
-            // Use a reliable fallback font for now
-            const fontUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/r128/examples/fonts/helvetiker_regular.typeface.json';
+            const fontUrl = USE_LOCAL_FILES 
+                ? './fonts/Outfit_Regular-restricter-char-set.json'  // Local file
+                : 'https://raw.githubusercontent.com/gorillabiscuit/cerebral-webflow/master/fonts/Outfit_Regular-restricter-char-set.json'; // GitHub CDN (master branch)
             loader.load(fontUrl, function (font) {
                 const textGeometry = new THREE.TextGeometry('cerebral', {
                     font: font,
