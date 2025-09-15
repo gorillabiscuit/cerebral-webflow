@@ -193,7 +193,7 @@
             rotation: { x: degToRad(0), y: degToRad(0), z: degToRad(-10.1) }, // in radians
                 cornerRadius: 1.5,      // Corner rounding (0 = square, higher = more rounded)
                 cornerSegments: 12,     // Smoothness of corners (higher = smoother)
-                color: 0x2a2a2a         // Dark gray base color
+                color: 0xedece6         // Dark gray base color
             }
         };
 
@@ -382,8 +382,18 @@
         // Initialize Three.js scene
         function init() {
             
-            // Get canvas
+            // Get canvas - ensure it exists
             canvas = document.getElementById('webgl');
+            if (!canvas) {
+                console.error('Canvas element with id "webgl" not found!');
+                return;
+            }
+            
+            // Ensure canvas has proper dimensions
+            if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
+                console.error('Canvas has zero dimensions! Check CSS styling.');
+                return;
+            }
             
             // Create scene
             scene = new THREE.Scene();
@@ -1050,8 +1060,12 @@
             console.log('THREE.TextGeometry available:', typeof THREE.TextGeometry !== 'undefined');
             console.log('THREE.OrbitControls available:', typeof THREE.OrbitControls !== 'undefined');
             console.log('THREE.GLTFLoader available:', typeof THREE.GLTFLoader !== 'undefined');
-            init();
-            animate();
+            
+            // Add a small delay to ensure DOM is fully ready
+            setTimeout(() => {
+                init();
+                animate();
+            }, 100);
         });
 </script>
 <!-- ============================================= -->
