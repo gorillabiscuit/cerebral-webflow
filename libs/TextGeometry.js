@@ -30,7 +30,19 @@ THREE.TextGeometry = function ( text, parameters ) {
 	if ( parameters.bevelSize === undefined ) parameters.bevelSize = 8;
 	if ( parameters.bevelEnabled === undefined ) parameters.bevelEnabled = false;
 
-	THREE.ExtrudeGeometry.call( this, shapes, parameters );
+	// Create ExtrudeGeometry instance properly for r128
+	var extrudeGeometry = new THREE.ExtrudeGeometry( shapes, parameters );
+	
+	// Copy properties from ExtrudeGeometry to this TextGeometry
+	this.attributes = extrudeGeometry.attributes;
+	this.index = extrudeGeometry.index;
+	this.boundingBox = extrudeGeometry.boundingBox;
+	this.boundingSphere = extrudeGeometry.boundingSphere;
+	this.groups = extrudeGeometry.groups;
+	this.morphAttributes = extrudeGeometry.morphAttributes;
+	this.morphTargetsRelative = extrudeGeometry.morphTargetsRelative;
+	this.name = extrudeGeometry.name;
+	this.userData = extrudeGeometry.userData;
 
 	this.type = 'TextGeometry';
 
