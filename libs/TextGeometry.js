@@ -7,8 +7,6 @@
 
 THREE.TextGeometry = function ( text, parameters ) {
 
-	THREE.BufferGeometry.call( this );
-
 	parameters = parameters || {};
 
 	var font = parameters.font;
@@ -16,7 +14,7 @@ THREE.TextGeometry = function ( text, parameters ) {
 	if ( ! font ) {
 
 		console.error( 'THREE.TextGeometry: font parameter is required' );
-		return;
+		return new THREE.BufferGeometry();
 
 	}
 
@@ -35,18 +33,8 @@ THREE.TextGeometry = function ( text, parameters ) {
 	// Create ExtrudeGeometry instance properly for r128
 	var extrudeGeometry = new THREE.ExtrudeGeometry( shapes, parameters );
 	
-	// Copy attributes from ExtrudeGeometry to this TextGeometry
-	this.attributes = extrudeGeometry.attributes;
-	this.index = extrudeGeometry.index;
-	this.boundingBox = extrudeGeometry.boundingBox;
-	this.boundingSphere = extrudeGeometry.boundingSphere;
-	this.groups = extrudeGeometry.groups;
-	this.morphAttributes = extrudeGeometry.morphAttributes;
-	this.morphTargetsRelative = extrudeGeometry.morphTargetsRelative;
-	this.name = extrudeGeometry.name;
-	this.userData = extrudeGeometry.userData;
-
-	this.type = 'TextGeometry';
+	// Return the ExtrudeGeometry directly instead of trying to inherit
+	return extrudeGeometry;
 
 };
 
