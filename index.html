@@ -67,7 +67,7 @@
         console.log('Three.js Glass Shader Scene initialized');
 
         // 🔧 DEVELOPMENT TOGGLE: Switch between local and GitHub CDN
-        const USE_LOCAL_FILES = true; // Set to false for GitHub CDN
+        const USE_LOCAL_FILES = false; // Set to false for GitHub CDN
 
         // 🎮 CONTROLS TOGGLE: Enable/disable OrbitControls
         const ENABLE_ORBIT_CONTROLS = true; // Set to false to disable camera controls
@@ -748,7 +748,10 @@
         // Create 3D text
         function create3DText() {
             const loader = new THREE.FontLoader();
-            loader.load('./fonts/Outfit_Regular-restricter-char-set.json', function (font) {
+            const fontUrl = USE_LOCAL_FILES 
+                ? './fonts/Outfit_Regular-restricter-char-set.json'  // Local file
+                : 'https://raw.githubusercontent.com/gorillabiscuit/cerebral-webflow/main/fonts/Outfit_Regular-restricter-char-set.json'; // GitHub CDN
+            loader.load(fontUrl, function (font) {
                 const textGeometry = new THREE.TextGeometry('cerebral', {
                     font: font,
                     size: TEXT.size,
