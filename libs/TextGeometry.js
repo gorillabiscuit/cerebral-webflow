@@ -22,7 +22,7 @@ THREE.TextGeometry = function ( text, parameters ) {
 
 	// translate parameters to ExtrudeGeometry API
 
-	parameters.amount = parameters.height !== undefined ? parameters.height : 50;
+	parameters.depth = parameters.height !== undefined ? parameters.height : 50;
 
 	// defaults
 
