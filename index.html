@@ -382,16 +382,34 @@
         // Initialize Three.js scene
         function init() {
             
-            // Get canvas - ensure it exists
+            // Get canvas - create if it doesn't exist (for Webflow compatibility)
             canvas = document.getElementById('webgl');
             if (!canvas) {
-                console.error('Canvas element with id "webgl" not found!');
-                return;
+                console.log('Canvas element not found, creating dynamically...');
+                canvas = document.createElement('canvas');
+                canvas.id = 'webgl';
+                canvas.style.position = 'fixed';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.zIndex = '-1';
+                document.body.appendChild(canvas);
+                console.log('Canvas element created and added to DOM');
             }
             
             // Ensure canvas has proper dimensions
             if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
-                console.error('Canvas has zero dimensions! Check CSS styling.');
+                console.log('Canvas has zero dimensions, waiting for layout...');
+                // Wait a bit for CSS to apply and try again
+                setTimeout(() => {
+                    if (canvas.clientWidth === 0 || canvas.clientHeight === 0) {
+                        console.error('Canvas still has zero dimensions after delay! Check CSS styling.');
+                        return;
+                    }
+                    // Retry initialization after delay
+                    init();
+                }, 200);
                 return;
             }
             
