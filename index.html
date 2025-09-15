@@ -67,7 +67,7 @@
         console.log('Three.js Glass Shader Scene initialized');
 
         // 🔧 DEVELOPMENT TOGGLE: Switch between local and GitHub CDN
-        const USE_LOCAL_FILES = true; // Set to true for local files, false for GitHub CDN
+        const USE_LOCAL_FILES = false; // Set to true for local files, false for GitHub CDN
 
         // 🎮 CONTROLS TOGGLE: Enable/disable OrbitControls
         const ENABLE_ORBIT_CONTROLS = true; // Set to false to disable camera controls
@@ -88,8 +88,8 @@
                     max: degToRad(20)    // Maximum rotation down (positive Y mouse movement)
                 },
                 y: {
-                    min: degToRad(-5),  // Maximum rotation left (negative X mouse movement)
-                    max: degToRad(15)    // Maximum rotation right (positive X mouse movement)
+                    min: degToRad(-25),  // Maximum rotation left (negative X mouse movement)
+                    max: degToRad(35)    // Maximum rotation right (positive X mouse movement)
                 }
             }
         };
@@ -189,7 +189,7 @@
             },
             roundedRed: {
                 size: { width: 26.5, height: 3.0 },
-            position: { x: 0, y: -1.1, z: -2 }, // Behind colored planes
+            position: { x: 0, y: -1.1, z: -5 }, // Behind colored planes
             rotation: { x: degToRad(0), y: degToRad(0), z: degToRad(-10.1) }, // in radians
                 cornerRadius: 1.5,      // Corner rounding (0 = square, higher = more rounded)
                 cornerSegments: 12,     // Smoothness of corners (higher = smoother)
@@ -562,6 +562,7 @@
                 gsap.to(barModel.rotation, {
                     x: baseRotation.x,
                     y: baseRotation.y,
+                    z: baseRotation.z,
                     duration: MOUSE_ROTATION_STRENGTH.duration,
                     ease: MOUSE_ROTATION_STRENGTH.ease,
                     overwrite: "auto",
@@ -998,15 +999,17 @@
                 
                 // Apply strength multiplier to the offset
                 const scaledOffsetX = mouseOffsetX * MOUSE_ROTATION_STRENGTH.y;
-                const scaledOffsetY = mouseOffsetY * MOUSE_ROTATION_STRENGTH.x;
+                const scaledOffsetZ = mouseOffsetY * MOUSE_ROTATION_STRENGTH.x;
                 
                 // Final rotation = base rotation + mouse offset
-                const finalRotationX = baseRotation.x + scaledOffsetX;
-                const finalRotationY = baseRotation.y + scaledOffsetY;
+                const finalRotationX = baseRotation.x;
+                const finalRotationY = baseRotation.y + scaledOffsetX;
+                const finalRotationZ = baseRotation.z + scaledOffsetZ;
                 
                 gsap.to(barModel.rotation, {
                     x: finalRotationX,
                     y: finalRotationY,
+                    z: finalRotationZ,
                     duration: MOUSE_ROTATION_STRENGTH.duration,
                     ease: MOUSE_ROTATION_STRENGTH.ease,
                     overwrite: "auto"
