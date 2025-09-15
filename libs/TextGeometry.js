@@ -14,7 +14,7 @@ THREE.TextGeometry = function ( text, parameters ) {
 	if ( ! font ) {
 
 		console.error( 'THREE.TextGeometry: font parameter is required' );
-		return new THREE.Geometry();
+		return new THREE.BufferGeometry();
 
 	}
 
