@@ -23,10 +23,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <!-- Three.js Addons for r128 - Global Script Versions -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/FontLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/geometries/TextGeometry.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <!-- Local Three.js Addons for Webflow compatibility -->
+    <script src="libs/FontLoader.js"></script>
+    <script src="libs/TextGeometry.js"></script>
 
     <!-- GSAP Animation Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
@@ -181,8 +183,8 @@
                 emissiveIntensity: 0.0
             },
             roundedRed: {
-                size: { width: 26.5, height: 2.75 },
-            position: { x: 0, y: -1.1, z: -5 }, // Behind colored planes
+                size: { width: 26.5, height: 3.0 },
+            position: { x: 0, y: -1.1, z: -2 }, // Behind colored planes
             rotation: { x: degToRad(0), y: degToRad(0), z: degToRad(-10.1) }, // in radians
                 cornerRadius: 1.5,      // Corner rounding (0 = square, higher = more rounded)
                 cornerSegments: 12,     // Smoothness of corners (higher = smoother)
@@ -227,6 +229,9 @@
         let uniforms;
         let mouse = { x: 0, y: 0 };
         let controls;
+        
+        // Background objects for rotation copying
+        let roundedRedPlane;
         
         // Store base rotation separately from mouse-driven rotation
         let baseRotation = { x: 0, y: 0, z: 0 };
@@ -534,6 +539,20 @@
                         // Note: hasMouseMoved stays false until actual mouse movement
                     }
                 });
+                
+                // Also reset background objects to base rotation (including Z-axis)
+                if (roundedRedPlane) {
+                    gsap.to(roundedRedPlane.rotation, {
+                        x: baseRotation.x,
+                        y: baseRotation.y,
+                        z: baseRotation.z,
+                        duration: MOUSE_ROTATION_STRENGTH.duration,
+                        ease: MOUSE_ROTATION_STRENGTH.ease,
+                        overwrite: "auto"
+                    });
+                    // Also copy rotation order
+                    roundedRedPlane.rotation.order = barModel.rotation.order;
+                }
             }
         }
 
@@ -595,9 +614,10 @@
                 const greenEmissiveColor = USE_WHITE_EMISSIVE ? 
                     new THREE.Color(WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY) : 
                     COLORED_PLANES.green.emissive;
-                const greenMaterial = new THREE.MeshBasicMaterial({
+                const greenMaterial = new THREE.MeshLambertMaterial({
                     color: USE_WHITE_EMISSIVE ? 0x000000 : COLORED_PLANES.green.color,
                     emissive: greenEmissiveColor,
+                    emissiveIntensity: WHITE_EMISSIVE_INTENSITY,
                     side: THREE.DoubleSide
                 });
                 const greenPlane = new THREE.Mesh(greenGeometry, greenMaterial);
@@ -618,9 +638,10 @@
                 const redEmissiveColor = USE_WHITE_EMISSIVE ? 
                     new THREE.Color(WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY) : 
                     COLORED_PLANES.red.emissive;
-                const redMaterial = new THREE.MeshBasicMaterial({
+                const redMaterial = new THREE.MeshLambertMaterial({
                     color: USE_WHITE_EMISSIVE ? 0x000000 : COLORED_PLANES.red.color,
                     emissive: redEmissiveColor,
+                    emissiveIntensity: WHITE_EMISSIVE_INTENSITY,
                     side: THREE.DoubleSide
                 });
                 const redPlane = new THREE.Mesh(redGeometry, redMaterial);
@@ -641,9 +662,10 @@
                 const blueEmissiveColor = USE_WHITE_EMISSIVE ? 
                     new THREE.Color(WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY, WHITE_EMISSIVE_INTENSITY) : 
                     COLORED_PLANES.blue.emissive;
-                const blueMaterial = new THREE.MeshBasicMaterial({
+                const blueMaterial = new THREE.MeshLambertMaterial({
                     color: USE_WHITE_EMISSIVE ? 0x000000 : COLORED_PLANES.blue.color,
                     emissive: blueEmissiveColor,
+                    emissiveIntensity: WHITE_EMISSIVE_INTENSITY,
                     side: THREE.DoubleSide
                 });
                 const bluePlane = new THREE.Mesh(blueGeometry, blueMaterial);
@@ -661,7 +683,7 @@
 
                 // Create top dark plane (always black, ignores white emissive toggle)
                 const topDarkGeometry = new THREE.PlaneGeometry(COLORED_PLANES.topDark.size.width, COLORED_PLANES.topDark.size.height);
-                const topDarkMaterial = new THREE.MeshBasicMaterial({
+                const topDarkMaterial = new THREE.MeshLambertMaterial({
                     color: COLORED_PLANES.topDark.color,        // Always use the configured color (black)
                     emissive: COLORED_PLANES.topDark.emissive,  // Always use the configured emissive
                     emissiveIntensity: COLORED_PLANES.topDark.emissiveIntensity,
@@ -680,13 +702,13 @@
                 COLORED_PLANES.roundedRed.cornerRadius, 
                 COLORED_PLANES.roundedRed.cornerSegments
             );
-            const roundedRedMaterial = new THREE.MeshBasicMaterial({
+            const roundedRedMaterial = new THREE.MeshLambertMaterial({
                 color: COLORED_PLANES.roundedRed.color,        // Always use configured color
                 emissive: COLORED_PLANES.roundedRed.emissive,  // Always use configured emissive
                 emissiveIntensity: COLORED_PLANES.roundedRed.emissiveIntensity,
                 side: THREE.DoubleSide
             });
-            const roundedRedPlane = new THREE.Mesh(roundedRedGeometry, roundedRedMaterial);
+            roundedRedPlane = new THREE.Mesh(roundedRedGeometry, roundedRedMaterial);
             roundedRedPlane.position.set(COLORED_PLANES.roundedRed.position.x, COLORED_PLANES.roundedRed.position.y, COLORED_PLANES.roundedRed.position.z);
             roundedRedPlane.rotation.set(COLORED_PLANES.roundedRed.rotation.x, COLORED_PLANES.roundedRed.rotation.y, COLORED_PLANES.roundedRed.rotation.z);
             // Always visible to camera (not affected by any toggles)
@@ -696,56 +718,32 @@
 
         // Create 3D text
         function create3DText() {
-            
-            const fontLoader = new THREE.FontLoader();
-            
-            // Load Outfit font (converted to Three.js typeface format)
-            fontLoader.load(
-                'https://raw.githubusercontent.com/gorillabiscuit/cerebral-webflow/master/fonts/Outfit_Regular.json',
-                (font) => {
-                    // Create text geometry
-                    const textGeometry = new THREE.TextGeometry('cerebral', {
-                        font: font,
-                        size: 5, // Text size
-                        height: 0.00001, // Text depth/extrusion
-                        curveSegments: 12,
-                        bevelEnabled: false,
-                        // bevelThickness: 0.03,
-                        // bevelSize: 0.02,
-                        // bevelOffset: 0,
-                        // bevelSegments: 5
-                    });
-                    
-                    // Center the text geometry
-                    textGeometry.computeBoundingBox();
-                    const bbox = textGeometry.boundingBox;
-                    
-                    const centerOffsetX = -(bbox.max.x + bbox.min.x) / 2;
-                    const centerOffsetY = -(bbox.max.y + bbox.min.y) / 2;
-                    const centerOffsetZ = 0; // Force Z-centering to 0 to prevent depth artifacts
-                    
-                    // Create dark gray material for text
-                    const textMaterial = new THREE.MeshBasicMaterial({ color: 0x121212 });
-                    
-                    // Create text mesh
-                    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-                    textMesh.name = 'cerebralText'; // Add name for easy reference
-                    
-                    // Position text using constants + centering offsets
-                    textMesh.position.set(
-                        TEXT.position.x + centerOffsetX, 
-                        TEXT.position.y + centerOffsetY, 
-                        TEXT.position.z + centerOffsetZ
-                    );
-                    
-                    // Add to scene
-                    scene.add(textMesh);
-                },
-                undefined, // No progress callback needed
-                (error) => {
-                    console.error('Error loading font:', error);
-                }
-            );
+            const loader = new THREE.FontLoader();
+            loader.load('https://raw.githubusercontent.com/gorillabiscuit/cerebral-webflow/main/fonts/Outfit_Regular.json', function (font) {
+                const textGeometry = new THREE.TextGeometry('cerebral', {
+                    font: font,
+                    size: TEXT.size,
+                    height: TEXT.height,
+                    curveSegments: TEXT.curveSegments,
+                    bevelEnabled: TEXT.bevelEnabled,
+                    bevelThickness: TEXT.bevelThickness,
+                    bevelSize: TEXT.bevelSize,
+                    bevelOffset: TEXT.bevelOffset,
+                    bevelSegments: TEXT.bevelSegments,
+                });
+
+                // Center the text geometry
+                textGeometry.computeBoundingBox();
+                const bbox = textGeometry.boundingBox;
+                const centerOffsetX = -(bbox.max.x + bbox.min.x) / 2;
+                const centerOffsetY = -(bbox.max.y + bbox.min.y) / 2;
+                textGeometry.translate(centerOffsetX, centerOffsetY, 0);
+
+                const textMaterial = new THREE.MeshBasicMaterial({ color: TEXT.color });
+                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                textMesh.position.set(TEXT.position.x, TEXT.position.y, TEXT.position.z);
+                scene.add(textMesh);
+            });
         }
 
         // Load GLTF model
@@ -974,6 +972,14 @@
                     ease: MOUSE_ROTATION_STRENGTH.ease,
                     overwrite: "auto"
                 });
+                
+                // Copy rotation to background objects (including Z-axis)
+                if (roundedRedPlane) {
+                    roundedRedPlane.rotation.x = barModel.rotation.x;
+                    roundedRedPlane.rotation.y = barModel.rotation.y;
+                    roundedRedPlane.rotation.z = barModel.rotation.z;
+                    roundedRedPlane.rotation.order = barModel.rotation.order; // Also copy rotation order
+                }
             }
             
             // Glass refraction rendering with two-pass system
